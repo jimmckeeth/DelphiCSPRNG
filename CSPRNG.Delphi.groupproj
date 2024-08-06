@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{979A6A91-DCB4-482C-AC19-E7D9A41B18D6}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="src\CSPRNG_sample.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="tests\CSPRNG.Tests.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="CSPRNG_sample">
+        <MSBuild Projects="src\CSPRNG_sample.dproj"/>
+    </Target>
+    <Target Name="CSPRNG_sample:Clean">
+        <MSBuild Projects="src\CSPRNG_sample.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="CSPRNG_sample:Make">
+        <MSBuild Projects="src\CSPRNG_sample.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="CSPRNG_Tests">
+        <MSBuild Projects="tests\CSPRNG.Tests.dproj"/>
+    </Target>
+    <Target Name="CSPRNG_Tests:Clean">
+        <MSBuild Projects="tests\CSPRNG.Tests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="CSPRNG_Tests:Make">
+        <MSBuild Projects="tests\CSPRNG.Tests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="CSPRNG_sample;CSPRNG_Tests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="CSPRNG_sample:Clean;CSPRNG_Tests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="CSPRNG_sample:Make;CSPRNG_Tests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

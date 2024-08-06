@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<test-results name="C:\Users\jim\Documents\Git\DelphiCSPRNG\tests\Win64\Debug\CSPRNG.Tests.exe" total="30" errors="0" failures="0" ignored="0" inconclusive="0" not-run="0" skipped="0" invalid="0" date="2024-06-20" time="0.033">
+  <culture-info current-culture="en" current-uiculture="en" />
+  <test-suite type="Assembly" name="CSPRNG.Tests.exe" executed="true" result="Success" success="True" time="0.033" asserts="0">
+    <results>
+        <test-suite type="Namespace" name="CSPRNG" executed="true" result="Success" success="True" time="0.033" asserts="0" >
+          <results>
+              <test-suite type="Fixture" name="TCSPRNGProviderTests" executed="True" result="Success" success="True" time="0.033" >
+                <results>
+                  <test-case name="TestGetBytes_Length" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetBytes_Randomness" executed="True" result="Success" success="True" time="0.017" asserts="0" />
+                  <test-case name="TestPadBytes_EmptyArrayTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPadBytes_ExactLengthTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPadBytes_LongArrayTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPadBytes_ShortArrayTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPadBytes_ShortArrayTo8" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPadBytes_ExactLengthTo8" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPadBytes_LongArrayTo8" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPadBytes_EmptyArrayTo8" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetUInt32.UInt32_DefaultRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetUInt32.UInt32_SmallRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetInt64.Int64_DefaultRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetInt64.Int64_SmallRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetInt64.Int64_SingleValue" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetInt32.Int32_DefaultRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetInt32.Int32_SmallRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetInt32.Int32_SingleValue" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetUInt64.UInt64_DefaultRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetUInt64.UInt64_SmallRange" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                  <test-case name="TestGetUInt64.UInt64_SingleValue" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetBase64_CustomLength.Len64" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetBase64_CustomLength.Len512" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetBase64_CustomLength.Len2048" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetBase64_Length" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetBase64_Randomness" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                  <test-case name="TestGetBase64_ValidEncoding" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetFloat_Range" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestSeedFromBytes" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestSeedFromEntropySource" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                </results>
+              </test-suite>
+          </results>
+        </test-suite>
+    </results>
+  </test-suite>
+</test-results>
