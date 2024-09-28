@@ -7,16 +7,6 @@ uses SysUtils;
 type
   ICSPRNGProvider = interface
     /// <summary>
-    /// Seeds the CSPRNG using the provided byte array.
-    /// </summary>
-    procedure SeedFromBytes(const SeedData: TBytes); overload;
-
-    /// <summary>
-    /// Seeds the CSPRNG using an entropy source (e.g., RDRAND, RDSEED, or platform-specific sources).
-    /// </summary>
-    procedure SeedFromEntropySource; overload;
-
-    /// <summary>
     /// Generates a specified number of cryptographically secure random bytes.
     /// </summary>
     function GetBytes(const Count: Integer): TBytes;

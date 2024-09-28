@@ -9,7 +9,9 @@ uses
   CSPRNG in 'CSPRNG.pas',
   CSPRNG.Provider.Windows in 'CSPRNG.Provider.Windows.pas',
   CSPRNG.Interfaces in 'CSPRNG.Interfaces.pas',
-  CSPRNG.Provider.Base in 'CSPRNG.Provider.Base.pas';
+  CSPRNG.Provider.Base in 'CSPRNG.Provider.Base.pas',
+  CSPRNG.Provider.Linux64 in 'CSPRNG.Provider.Linux64.pas',
+  CSPRNG.Provider.iOS in 'CSPRNG.Provider.iOS.pas';
 
 begin
   try

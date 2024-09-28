@@ -10,18 +10,30 @@ function GetCSPRNGProvider: ICSPRNGProvider;
 implementation
 
 {$IF Defined(MSWINDOWS)}
-  uses CSPRNG.Provider.Windows;
-{$ELSEIF Linux}
-  uses CSPRNG.Provuder.Linux;
+uses CSPRNG.Provider.Windows;
+function GetCSPRNGProvider: ICSPRNGProvider;
+begin
+  Result := TWindowsCSPRNGProvider.Create; // Create Windows provider
+end;
 {$ENDIF}
+
+{$IFDEF POSIX}
+uses CSPRNG.Provider.Linux64;
 
 function GetCSPRNGProvider: ICSPRNGProvider;
 begin
-{$IFDEF MSWINDOWS}
-  Result := TWindowsCSPRNGProvider.Create; // Create Windows provider
-{$ENDIF}
+  Result := TCSPRNGProviderLinux64.Create;
 end;
+{$ENDIF}
 
+{$IFDEF MACOS}
+uses CSPRNG.Provider.MacOS64;
+
+function GetCSPRNGProvider: ICSPRNGProvider;
+begin
+  Result := TCSPRNGProviderMacOS64.Create;
+end;
+{$ENDIF}
 
 initialization
 

@@ -2,6 +2,8 @@ unit CSPRNG.Provider.Windows;
 
 interface
 
+{$IFDEF MSWINDOWS}
+
 uses
   System.SysUtils,
   Winapi.Windows,
@@ -13,15 +15,14 @@ type
   TWindowsCSPRNGProvider = class(TCSPRNGProviderBase, ICSPRNGProvider)
   private
     FHandle: BCRYPT_ALG_HANDLE;
-    FSeedData: TBytes;           // Add a field to store the seed
+    FSeedData: TBytes;
+    procedure SeedFromEntropySource;           // Add a field to store the seed
 
   public
     constructor Create;
     destructor Destroy; override;
 
     // ICSPRNGProvider implementation
-    procedure SeedFromBytes(const SeedData: TBytes); override;
-    procedure SeedFromEntropySource; override;
     function GetBytes(const Count: Integer): TBytes; override;
   end;
 
@@ -67,12 +68,6 @@ begin
   inherited;
 end;
 
-procedure TWindowsCSPRNGProvider.SeedFromBytes(const SeedData: TBytes);
-begin
-  FSeedData := SeedData; // Store the seed data
-  BCryptGenRandom(FHandle, PByte(FSeedData[0]), Length(FSeedData), BCRYPT_RNG_USE_ENTROPY_IN_BUFFER); // Seed the RNG
-end;
-
 procedure TWindowsCSPRNGProvider.SeedFromEntropySource;
 begin
   // Use the default system-provided entropy
@@ -88,6 +83,9 @@ begin
   if BCryptGenRandom(FHandle, pBytes, Count, 0) <> STATUS_SUCCESS then
     raise Exception.Create('Failed to generate random bytes');
 end;
+{$ELSE}
+implementation
+{$ENDIF}
 
 end.
 

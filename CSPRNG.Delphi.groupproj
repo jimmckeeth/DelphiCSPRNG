@@ -9,6 +9,9 @@
         <Projects Include="tests\CSPRNG.Tests.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="sample\CSPRNG_FMX.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="CSPRNG_Tests:Make">
         <MSBuild Projects="tests\CSPRNG.Tests.dproj" Targets="Make"/>
     </Target>
+    <Target Name="CSPRNG_FMX">
+        <MSBuild Projects="sample\CSPRNG_FMX.dproj"/>
+    </Target>
+    <Target Name="CSPRNG_FMX:Clean">
+        <MSBuild Projects="sample\CSPRNG_FMX.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="CSPRNG_FMX:Make">
+        <MSBuild Projects="sample\CSPRNG_FMX.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="CSPRNG_sample;CSPRNG_Tests"/>
+        <CallTarget Targets="CSPRNG_sample;CSPRNG_Tests;CSPRNG_FMX"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="CSPRNG_sample:Clean;CSPRNG_Tests:Clean"/>
+        <CallTarget Targets="CSPRNG_sample:Clean;CSPRNG_Tests:Clean;CSPRNG_FMX:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="CSPRNG_sample:Make;CSPRNG_Tests:Make"/>
+        <CallTarget Targets="CSPRNG_sample:Make;CSPRNG_Tests:Make;CSPRNG_FMX:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

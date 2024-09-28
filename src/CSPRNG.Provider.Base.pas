@@ -13,9 +13,6 @@ type
   TCSPRNGProviderBase = class abstract(TInterfacedObject, ICSPRNGProvider)
 
   protected
-    // Abstract methods to be implemented by derived classes
-    procedure SeedFromBytes(const SeedData: TBytes); overload; virtual; abstract;
-    procedure SeedFromEntropySource; overload; virtual; abstract;
     function GetBytes(const Count: Integer): TBytes; virtual; abstract;
   public
 

@@ -67,3 +67,10 @@ __recovery/
 
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
+
+# Build folders
+**/Debug
+**/Relase
+
+AndroidManifest.template.xml
+*.deployproj
