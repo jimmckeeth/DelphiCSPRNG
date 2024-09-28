@@ -5,8 +5,9 @@
         <Config Condition="'$(Config)'==''">Debug</Config>
         <FrameworkType>None</FrameworkType>
         <MainSource>CSPRNG_sample.dpr</MainSource>
-        <Platform Condition="'$(Platform)'==''">Android64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectGuid>{7F7C03D2-1B62-4C4B-8FA9-C2EEB044296C}</ProjectGuid>
+        <ProjectName Condition="'$(ProjectName)'==''">CSPRNG_sample</ProjectName>
         <ProjectVersion>20.2</ProjectVersion>
         <TargetedPlatforms>33923</TargetedPlatforms>
     </PropertyGroup>
@@ -109,7 +110,7 @@
         <DCCReference Include="CSPRNG.Provider.Windows.pas"/>
         <DCCReference Include="CSPRNG.Interfaces.pas"/>
         <DCCReference Include="CSPRNG.Provider.Base.pas"/>
-        <DCCReference Include="CSPRNG.Provider.Linux64.pas"/>
+        <DCCReference Include="CSPRNG.Provider.Posix.pas"/>
         <DCCReference Include="CSPRNG.Provider.iOS.pas"/>
         <DCCReference Include="CSPRNG.Provider.MacOS64.pas"/>
         <BuildConfiguration Include="Base">

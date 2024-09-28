@@ -75,3 +75,4 @@ modules/
 
 AndroidManifest.template.xml
 *.deployproj
+*.res

@@ -10,7 +10,7 @@ uses
   CSPRNG.Provider.Windows in 'CSPRNG.Provider.Windows.pas',
   CSPRNG.Interfaces in 'CSPRNG.Interfaces.pas',
   CSPRNG.Provider.Base in 'CSPRNG.Provider.Base.pas',
-  CSPRNG.Provider.Linux64 in 'CSPRNG.Provider.Linux64.pas',
+  CSPRNG.Provider.Posix in 'CSPRNG.Provider.Posix.pas',
   CSPRNG.Provider.iOS in 'CSPRNG.Provider.iOS.pas',
   CSPRNG.Provider.MacOS64 in 'CSPRNG.Provider.MacOS64.pas';
 

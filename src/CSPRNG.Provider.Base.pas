@@ -17,11 +17,11 @@ type
   public
 
     function GetFloat: Double;
-    function GetUInt32(max: UInt32 = High(UInt32)): UInt32;
-    function GetInt32(max: Int32 = High(Int32)): Int32;
-    function GetInt64(max: Int64 = High(Int64)): Int64;
-    function GetUInt64(max: UInt64 = High(UInt64)): UInt64;
-    function GetBase64(len: Integer = 1024): String;
+    function GetUInt32(const max: UInt32 = High(UInt32)): UInt32;
+    function GetInt32(const max: Int32 = High(Int32)): Int32;
+    function GetInt64(const max: Int64 = High(Int64)): Int64;
+    function GetUInt64(const max: UInt64 = High(UInt64)): UInt64;
+    function GetBase64(const len: Integer = 1024): String;
 
     // Helpers
     class function ToUInt32(const Bytes: TBytes): UInt32;
@@ -36,7 +36,7 @@ implementation
 
 { TCSPRNGProviderBase }
 
-function TCSPRNGProviderBase.GetUInt32(max: UInt32 = High(UInt32)): UInt32;
+function TCSPRNGProviderBase.GetUInt32(const max: UInt32 = High(UInt32)): UInt32;
 var
   RandomBytes: TBytes;
   Value: UInt64;
@@ -50,7 +50,7 @@ begin
   Result := UInt32(Value mod (UInt64(max) + 1));  // Modulo and cast to UInt32
 end;
 
-function TCSPRNGProviderBase.GetInt32(max: Int32 = High(Int32)): Int32;
+function TCSPRNGProviderBase.GetInt32(const max: Int32 = High(Int32)): Int32;
 var
   RandomBytes: TBytes;
   Value: UInt64;
@@ -72,7 +72,7 @@ begin
   Result := Int32(adjustedValue); // Safely cast to Int32
 end;
 
-function TCSPRNGProviderBase.GetInt64(max: Int64 = High(Int64)): Int64;
+function TCSPRNGProviderBase.GetInt64(const max: Int64 = High(Int64)): Int64;
 var
   RandomBytes: TBytes;
   Value: UInt64;
@@ -92,7 +92,7 @@ begin
   Result := Int64(adjustedValue);
 end;
 
-function TCSPRNGProviderBase.GetUInt64(max: UInt64 = High(UInt64)): UInt64;
+function TCSPRNGProviderBase.GetUInt64(const max: UInt64 = High(UInt64)): UInt64;
 var
   RandomBytes: TBytes;
   Value: UInt64;
@@ -197,7 +197,7 @@ begin
   Result := RandomInt / UInt64(High(UInt64)); // Scale to [0, 1)
 end;
 
-function TCSPRNGProviderBase.GetBase64(len: Integer = 1024): String;
+function TCSPRNGProviderBase.GetBase64(const len: Integer = 1024): String;
 var
   Bytes: TBytes;
 begin

@@ -1,4 +1,4 @@
-unit CSPRNG.Provider.Linux64;
+unit CSPRNG.Provider.Posix;
 
 interface
 
@@ -11,7 +11,7 @@ type
   /// <summary>
   /// Linux (64-bit) implementation of the CSPRNG provider using platform entropy sources.
   /// </summary>
-  TCSPRNGProviderLinux64 = class(TCSPRNGProviderBase)
+  TCSPRNGProviderPosix = class(TCSPRNGProviderBase)
   protected
     /// <summary>
     /// Generates a specified number of cryptographically secure random bytes using /dev/urandom.
@@ -23,7 +23,7 @@ implementation
 
 { TCSPRNGProviderLinux64 }
 
-function TCSPRNGProviderLinux64.GetBytes(const Count: Integer): TBytes;
+function TCSPRNGProviderPosix.GetBytes(const Count: Integer): TBytes;
 var
   FileStream: TFileStream;
   BytesRead: Integer;

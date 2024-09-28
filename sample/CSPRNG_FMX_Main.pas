@@ -17,7 +17,7 @@ type
     procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
-    rnd: ICSPRNGProvider;
+    rng: ICSPRNGProvider;
   public
     { Public declarations }
   end;
@@ -31,12 +31,12 @@ implementation
 
 procedure TForm28.Button1Click(Sender: TObject);
 begin
-  memo1.Lines.Text := rnd.GetBase64()
+  memo1.Lines.Text := rng.GetBase64()
 end;
 
 procedure TForm28.FormCreate(Sender: TObject);
 begin
-   rnd := GetCSPRNGProvider;
+   rng := GetCSPRNGProvider;
 end;
 
 end.

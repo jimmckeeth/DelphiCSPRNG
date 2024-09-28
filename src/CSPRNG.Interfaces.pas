@@ -14,29 +14,32 @@ type
     /// <summary>
     /// Generates a cryptographically secure random unsigned 32-bit integer.
     /// </summary>
-    function GetUInt32(max: UInt32 = High(UInt32)): UInt32;
+    function GetUInt32(const max: UInt32 = High(UInt32)): UInt32;
 
     /// <summary>
     /// Generates a cryptographically secure random signed 32-bit integer.
     /// </summary>
-    function GetInt32(max: Int32 = High(Int32)): Int32;
+    function GetInt32(const max: Int32 = High(Int32)): Int32;
 
     /// <summary>
     /// Generates a cryptographically secure random signed 64-bit integer.
     /// </summary>
-    function GetInt64(max: Int64 = High(Int64)): Int64;
+    function GetInt64(const max: Int64 = High(Int64)): Int64;
 
     /// <summary>
     /// Generates a cryptographically secure random unsigned 64-bit integer.
     /// </summary>
-    function GetUInt64(max: UInt64 = High(UInt64)): UInt64;
+    function GetUInt64(const max: UInt64 = High(UInt64)): UInt64;
 
     /// <summary>
     /// Generates a cryptographically secure random float between 0 and 1
     /// </summary>
     function GetFloat: Double;
 
-    function GetBase64(len: Integer = 1024): String;
+    /// <summary>
+    /// Generates a BASE64 encoded random string
+    /// </summary>
+    function GetBase64(const len: Integer = 1024): String;
   end;
 
 

@@ -18,11 +18,11 @@ end;
 {$ENDIF}
 
 {$IFDEF POSIX}
-uses CSPRNG.Provider.Linux64;
+uses CSPRNG.Provider.Posix;
 
 function GetCSPRNGProvider: ICSPRNGProvider;
 begin
-  Result := TCSPRNGProviderLinux64.Create;
+  Result := TCSPRNGProviderPosix.Create;
 end;
 {$ENDIF}
 
