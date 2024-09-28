@@ -111,6 +111,7 @@
         <DCCReference Include="CSPRNG.Provider.Base.pas"/>
         <DCCReference Include="CSPRNG.Provider.Linux64.pas"/>
         <DCCReference Include="CSPRNG.Provider.iOS.pas"/>
+        <DCCReference Include="CSPRNG.Provider.MacOS64.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

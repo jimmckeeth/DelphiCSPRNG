@@ -2,6 +2,8 @@ unit CSPRNG.Provider.MacOS64;
 
 interface
 
+{$IFDEF OSX}
+
 uses
   CSPRNG.Provider.Base, SysUtils, Classes, Posix.Base, Posix.Unistd, Posix.Fcntl, Posix.Errno;
 
@@ -59,6 +61,10 @@ begin
     FileStream.Free;
   end;
 end;
+
+{$ELSE}
+implementation
+{$ENDIF}
 
 end.
 

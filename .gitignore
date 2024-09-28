@@ -49,6 +49,7 @@
 *.cfg
 *.hpp
 *Resource.rc
+*.res
 
 # Delphi local files (user-specific info)
 *.local
@@ -69,8 +70,8 @@ __recovery/
 modules/
 
 # Build folders
-**/Debug
-**/Relase
+**/Debug/
+**/Relase/
 
 AndroidManifest.template.xml
 *.deployproj

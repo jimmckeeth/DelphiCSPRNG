@@ -15,7 +15,6 @@ type
   TWindowsCSPRNGProvider = class(TCSPRNGProviderBase, ICSPRNGProvider)
   private
     FHandle: BCRYPT_ALG_HANDLE;
-    FSeedData: TBytes;
     procedure SeedFromEntropySource;           // Add a field to store the seed
 
   public
