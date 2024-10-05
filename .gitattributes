@@ -1,2 +1,36 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Set the default behavior, in case people don't have core.autocrlf set.
+#* binary
+
+# Core files that needs lf ending
+*.gitattributes text eol=lf diff
+*.gitignore text eol=lf diff
+
+# Declare text files that will always have CRLF line endings on checkout
+*.txt text eol=crlf diff
+*.md text eol=crlf diff
+*.xml text eol=crlf diff
+*.json text eol=crlf diff
+*.manifest text eol=crlf diff
+*.rc text eol=crlf diff
+*.bat text eol=crlf diff
+
+# Delphi specific text files that will always have CRLF line endings on checkout
+*.pas text eol=crlf diff
+*.inc text eol=crlf diff
+*.dfm text eol=crlf diff
+*.fmx text eol=crlf diff
+*.dpr text eol=crlf diff
+*.dpk text eol=crlf diff
+*.dproj text eol=crlf diff
+*.groupproj text eol=crlf diff
+*.deployproj text eol=crlf diff
+*.plist text eol=lf diff
+
+# Misc text files that will always have CRLF line endings on checkout
+*.cpp text eol=crlf diff
+*.h text eol=crlf diff
+*.hpp text eol=crlf diff
+*.asm text eol=crlf diff
+*.ps1 text eol=crlf diff
+*.prjmgc text eol=crlf diff
+*.sql text eol=crlf diff
