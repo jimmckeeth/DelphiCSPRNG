@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<test-results name="C:\Users\jim\git\DelphiCSPRNG\tests\Win32\Debug\Holon.CSRNG.Tests.exe" total="50" errors="0" failures="0" ignored="0" inconclusive="0" not-run="0" skipped="0" invalid="0" date="2026-08-31" time="12:21:07">
+<test-results name="C:\Users\jim\git\DelphiCSPRNG\tests\Win32\Debug\Holon.CSRNG.Tests.exe" total="50" errors="0" failures="0" ignored="0" inconclusive="0" not-run="0" skipped="0" invalid="0" date="2026-08-31" time="13:52:02">
   <culture-info current-culture="en" current-uiculture="en" />
-  <test-suite type="Assembly" name="Holon.CSRNG.Tests.exe" executed="true" result="Success" success="True" time="12:21:07" asserts="0">
+  <test-suite type="Assembly" name="Holon.CSRNG.Tests.exe" executed="true" result="Success" success="True" time="13:52:02" asserts="0">
     <results>
-        <test-suite type="Namespace" name="Holon" executed="true" result="Success" success="True" time="0.089" asserts="0" >
+        <test-suite type="Namespace" name="Holon" executed="true" result="Success" success="True" time="0.085" asserts="0" >
           <results>
-              <test-suite type="Fixture" name="TCSPRNGProviderTests" executed="True" result="Success" success="True" time="0.086" >
+              <test-suite type="Fixture" name="TCSPRNGProviderTests" executed="True" result="Success" success="True" time="0.083" >
                 <results>
                   <test-case name="TestGetBytes_Length" executed="True" result="Success" success="True" time="0.000" asserts="0" />
-                  <test-case name="TestGetBytes_Randomness" executed="True" result="Success" success="True" time="0.070" asserts="0" />
+                  <test-case name="TestGetBytes_Randomness" executed="True" result="Success" success="True" time="0.066" asserts="0" />
                   <test-case name="TestPadBytes_EmptyArrayTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestPadBytes_ExactLengthTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestPadBytes_LongArrayTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
@@ -19,7 +19,7 @@
                   <test-case name="TestPadBytes_EmptyArrayTo8" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetUInt32.UInt32_DefaultRange" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                   <test-case name="TestGetUInt32.UInt32_SmallRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
-                  <test-case name="TestGetUInt32_DefaultRange_NotDegenerate" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetUInt32_DefaultRange_NotDegenerate" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                   <test-case name="TestGetInt32_DefaultRange_NotDegenerate" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestTryReduceUInt64_RejectsLeftoverRegion" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestTryReduceUInt64_AcceptsAndReducesValidValues" executed="True" result="Success" success="True" time="0.000" asserts="0" />
@@ -40,14 +40,14 @@
                   <test-case name="TestGetBase64_Length" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetBase64_Randomness" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                   <test-case name="TestGetBase64_ValidEncoding" executed="True" result="Success" success="True" time="0.000" asserts="0" />
-                  <test-case name="TestGetFloat_Range" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestGetFloat_Range" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                 </results>
               </test-suite>
               <test-suite type="Fixture" name="TSecureMemoryTests" executed="True" result="Success" success="True" time="0.002" >
                 <results>
                   <test-case name="TestAllocate_ZeroFilled" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestAllocate_ZeroSize" executed="True" result="Success" success="True" time="0.000" asserts="0" />
-                  <test-case name="TestAccess_RoundTrip" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestAccess_RoundTrip" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                   <test-case name="TestFromProvider_FillsFromProvider" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestWipe_ZeroesDataWhileStillAlive" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestAssign_DeepCopy_Independent" executed="True" result="Success" success="True" time="0.000" asserts="0" />

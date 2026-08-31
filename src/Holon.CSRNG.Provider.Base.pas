@@ -114,8 +114,25 @@ type
 
 implementation
 
+{$IFDEF HOLON_CSRNG_USE_SECUREMEMORY}
 uses
-  Holon.SecureMemory; // for SecureZeroBytes, used to wipe the intermediates below
+  Holon.SecureMemory; // for SecureZeroBytes, used by WipeIntermediate below
+{$ENDIF}
+
+// Wipes a TBytes intermediate immediately before it's discarded (e.g. the random
+// bytes GetUInt32/GetBase64 draw internally), but only when HOLON_CSRNG_USE_SECUREMEMORY
+// is defined - off by default, so Holon.CSRNG has no dependency on Holon.SecureMemory
+// (a separate, optional unit) unless a consumer explicitly opts in, e.g. by adding
+// HOLON_CSRNG_USE_SECUREMEMORY to a project's DCC_Define. With the define off, this
+// is a no-op: the intermediate is simply left for the memory manager/GC to reclaim
+// as normal, same as before Holon.SecureMemory existed.
+procedure WipeIntermediate(const B: TBytes); inline;
+begin
+  {$IFDEF HOLON_CSRNG_USE_SECUREMEMORY}
+  if Length(B) > 0 then
+    Holon.SecureMemory.SecureZeroBytes(@B[0], Length(B));
+  {$ENDIF}
+end;
 
 { TCSPRNGProviderBase }
 
@@ -137,7 +154,7 @@ begin
 
     Result := UInt32(Value mod (UInt64(max) + 1));  // Modulo and cast to UInt32
   finally
-    SecureZeroBytes(@RandomBytes[0], Length(RandomBytes));
+    WipeIntermediate(RandomBytes);
   end;
 end;
 
@@ -158,7 +175,7 @@ begin
     // always fits Int32 without needing any further adjustment.
     Result := Int32(Value mod (UInt64(max) + 1));
   finally
-    SecureZeroBytes(@RandomBytes[0], Length(RandomBytes));
+    WipeIntermediate(RandomBytes);
   end;
 end;
 
@@ -178,7 +195,7 @@ begin
     // always fits Int64 without needing any further adjustment.
     Result := Int64(Value mod (UInt64(max) + 1));
   finally
-    SecureZeroBytes(@RandomBytes[0], Length(RandomBytes));
+    WipeIntermediate(RandomBytes);
   end;
 end;
 
@@ -197,7 +214,7 @@ begin
     try
       Exit(ToUInt64(RandomBytes));
     finally
-      SecureZeroBytes(@RandomBytes[0], Length(RandomBytes));
+      WipeIntermediate(RandomBytes);
     end;
   end;
 
@@ -206,7 +223,7 @@ begin
     try
       Value := ToUInt64(RandomBytes);
     finally
-      SecureZeroBytes(@RandomBytes[0], Length(RandomBytes));
+      WipeIntermediate(RandomBytes);
     end;
   until TryReduceUInt64(Value, max, Result);
 end;
@@ -312,7 +329,7 @@ begin
     RandomInt := ToUInt64(Bytes); // Use the same endian-safe conversion as the integer getters
     Result := RandomInt / UInt64(High(UInt64)); // Scale to [0, 1)
   finally
-    SecureZeroBytes(@Bytes[0], Length(Bytes));
+    WipeIntermediate(Bytes);
   end;
 end;
 
@@ -333,8 +350,7 @@ begin
     // be wiped this way - only this intermediate TBytes can be. Callers who need a
     // wipeable secret should use GetBytes + Holon.SecureMemory.TSecureBytes
     // instead of GetBase64.
-    if Length(Bytes) > 0 then
-      SecureZeroBytes(@Bytes[0], Length(Bytes));
+    WipeIntermediate(Bytes);
   end;
 end;
 

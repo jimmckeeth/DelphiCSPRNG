@@ -97,7 +97,7 @@ If a future consumer needs a different source (e.g. a hardware RNG, a specific F
 
 ## Holon.SecureMemory
 
-`Holon.SecureMemory.pas` provides `TSecureBytes`, a guarded, swap-locked container for secret bytes (keys, tokens, passwords) - a separate, optional unit; nothing in `Holon.CSRNG` requires it except that `Holon.CSRNG.Provider.Base.pas` uses its `SecureZeroBytes` helper to wipe its own intermediate buffers.
+`Holon.SecureMemory.pas` provides `TSecureBytes`, a guarded, swap-locked container for secret bytes (keys, tokens, passwords) - a separate, optional unit that `Holon.CSRNG` has no hard dependency on. `Holon.CSRNG.Provider.Base.pas` *can* use its `SecureZeroBytes` helper to wipe its own intermediate buffers, but only when the `HOLON_CSRNG_USE_SECUREMEMORY` compiler define is set (e.g. via a project's `DCC_Define`, as both `sample/CSPRNG_sample.dproj` and `tests/CSPRNG.Tests.dproj` do). With the define off - the default - `Holon.CSRNG.Provider.Base.pas` compiles and runs with zero reference to `Holon.SecureMemory.pas`, so a project that only wants random numbers never has to pull in the extra unit.
 
 Neither `TBytes` nor `String` can be made secure in Delphi: `SetLength` may realloc-and-copy, stranding plaintext in freed heap the caller has no way to reach, and strings are copy-on-write and refcounted, so copies multiply invisibly. `TSecureBytes` instead owns a page-aligned block it allocates itself with `VirtualAlloc`/`mmap` and never reallocates, laid out as:
 
