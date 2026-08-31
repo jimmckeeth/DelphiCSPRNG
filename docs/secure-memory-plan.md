@@ -58,7 +58,7 @@ private
   class operator Assign(var Dest: TSecureBytes; const [ref] Src: TSecureBytes); // deep copy into a new secure block
 public
   class function Allocate(ASize: NativeInt): TSecureBytes; static;
-  class function FromProvider(const AProvider: Holon.CSPRNG.ICSPRNGProvider; ASize: NativeInt): TSecureBytes; static;
+  class function FromProvider(const AProvider: Holon.CSRNG.ICSPRNGProvider; ASize: NativeInt): TSecureBytes; static;
   function Access: TSecureAccess;   // scoped unseal
   procedure Wipe;
   property Size: NativeInt read FSize;
@@ -68,7 +68,7 @@ end;
 Scoped accessor — a second CMR that unseals on construction and re-seals on scope exit:
 
 ```pascal
-var Key := TSecureBytes.FromProvider(Holon.CSPRNG.GetCSPRNGProvider, 32);
+var Key := TSecureBytes.FromProvider(Holon.CSRNG.GetCSPRNGProvider, 32);
 begin
   var A := Key.Access;          // pages -> READWRITE
   Move(A.Data^, Target^, Key.Size);
@@ -82,7 +82,7 @@ end;                            // pages -> PROT_NONE; Key wiped+freed at its ow
 ### Phase 1 — Foundation (highest value, lowest risk)
 
 - `SecureZeroBytes` that cannot be optimised away. Delphi's Win32 backend rarely elides dead stores, but the Linux/macOS/iOS targets are LLVM-backed and will. Defeat it by writing through a `volatile`-style indirection the optimiser can't prove dead, and keep the routine in its own unit so it isn't inlined into a provably-dead context. **Verify by inspecting generated code on Linux64, not by assuming.**
-- Wipe the library's own intermediates: the `RandomBytes` locals in `GetUInt32` / `GetInt32` / `GetInt64` / `GetUInt64` / `GetFloat`, and the `Bytes` local in `GetBase64` (`src/Holon.CSPRNG.Provider.Base.pas`).
+- Wipe the library's own intermediates: the `RandomBytes` locals in `GetUInt32` / `GetInt32` / `GetInt64` / `GetUInt64` / `GetFloat`, and the `Bytes` local in `GetBase64` (`src/Holon.CSRNG.Provider.Base.pas`).
 - Document that `GetBase64` returns a `String`, which is COW/refcounted and therefore *cannot* be wiped — callers wanting a wipeable token should use `GetBytes` + `TSecureBytes`.
 
 ### Phase 2 — Secure allocation (the libsodium core)
@@ -102,12 +102,12 @@ end;                            // pages -> PROT_NONE; Key wiped+freed at its ow
 
 - `src/Holon.SecureMemory.pas` — new; `TSecureBytes`, `TSecureAccess`, `SecureZeroBytes`
 - `src/Holon.SecureMemory.Platform.pas` — new; `{$IFDEF MSWINDOWS}` / `{$IFDEF POSIX}` primitives
-- `src/Holon.CSPRNG.Provider.Base.pas` — wipe intermediates (Phase 1)
-- `src/Holon.CSPRNG.Interfaces.pas` — reuse existing `ECSPRNGError`; add `ESecureMemoryError` descendant
+- `src/Holon.CSRNG.Provider.Base.pas` — wipe intermediates (Phase 1)
+- `src/Holon.CSRNG.Interfaces.pas` — reuse existing `ECSPRNGError`; add `ESecureMemoryError` descendant
 - `tests/CSPRNG.Tests.SecureMemory.pas` — new fixture
-- `tests/CSPRNG.Tests.dpr` / `.dproj`, `sample/CSPRNG_sample.dpr` / `.dproj` — register new units (same edit pattern used when `Holon.CSPRNG.Provider.Linux.pas` was added)
+- `tests/CSPRNG.Tests.dpr` / `.dproj`, `sample/CSPRNG_sample.dpr` / `.dproj` — register new units (same edit pattern used when `Holon.CSRNG.Provider.Linux.pas` was added)
 
-Reuse `Holon.CSPRNG.ICSPRNGProvider` / `Holon.CSPRNG.GetCSPRNGProvider` for all key and mask generation — do not introduce a second entropy path.
+Reuse `Holon.CSRNG.ICSPRNGProvider` / `Holon.CSRNG.GetCSPRNGProvider` for all key and mask generation — do not introduce a second entropy path.
 
 ## Verification
 

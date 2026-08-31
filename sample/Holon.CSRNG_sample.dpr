@@ -1,4 +1,4 @@
-program Holon.CSPRNG_sample;
+program Holon.CSRNG_sample;
 
 {$APPTYPE CONSOLE}
 
@@ -6,17 +6,17 @@ program Holon.CSPRNG_sample;
 
 uses
   System.SysUtils,
-  Holon.CSPRNG in '..\src\Holon.CSPRNG.pas',
-  Holon.CSPRNG.Provider.Windows in '..\src\Holon.CSPRNG.Provider.Windows.pas',
-  Holon.CSPRNG.Interfaces in '..\src\Holon.CSPRNG.Interfaces.pas',
-  Holon.CSPRNG.Provider.Base in '..\src\Holon.CSPRNG.Provider.Base.pas',
-  Holon.CSPRNG.Provider.Posix in '..\src\Holon.CSPRNG.Provider.Posix.pas',
-  Holon.CSPRNG.Provider.Linux in '..\src\Holon.CSPRNG.Provider.Linux.pas',
-  Holon.CSPRNG.Provider.Apple in '..\src\Holon.CSPRNG.Provider.Apple.pas';
+  Holon.CSRNG in '..\src\Holon.CSRNG.pas',
+  Holon.CSRNG.Provider.Windows in '..\src\Holon.CSRNG.Provider.Windows.pas',
+  Holon.CSRNG.Interfaces in '..\src\Holon.CSRNG.Interfaces.pas',
+  Holon.CSRNG.Provider.Base in '..\src\Holon.CSRNG.Provider.Base.pas',
+  Holon.CSRNG.Provider.Posix in '..\src\Holon.CSRNG.Provider.Posix.pas',
+  Holon.CSRNG.Provider.Linux in '..\src\Holon.CSRNG.Provider.Linux.pas',
+  Holon.CSRNG.Provider.Apple in '..\src\Holon.CSRNG.Provider.Apple.pas';
 
 begin
   try
-    var rnd := Holon.CSPRNG.GetCSPRNGProvider;
+    var rnd := Holon.CSRNG.GetCSPRNGProvider;
     for var b in rnd.GetBytes(1000) do
     begin
       write(IntToHex(b, 2).ToLower);

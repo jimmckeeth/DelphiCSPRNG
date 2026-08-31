@@ -1,16 +1,16 @@
-unit Holon.CSPRNG.Provider.Posix;
+unit Holon.CSRNG.Provider.Posix;
 
 interface
 
 {$IFDEF POSIX}
 
 uses
-  Holon.CSPRNG.Provider.Base, Holon.CSPRNG.Interfaces, SysUtils, Classes;
+  Holon.CSRNG.Provider.Base, Holon.CSRNG.Interfaces, SysUtils, Classes;
 
 type
   /// <summary>
   /// Generic POSIX implementation of the CSPRNG provider, reading directly from
-  /// /dev/urandom. Used as-is for Android. Linux64 uses Holon.CSPRNG.Provider.Linux's
+  /// /dev/urandom. Used as-is for Android. Linux64 uses Holon.CSRNG.Provider.Linux's
   /// TCSPRNGProviderLinux instead, which descends from this class and adds a
   /// getrandom(2) fast path ahead of the /dev/urandom fallback implemented here.
   /// </summary>

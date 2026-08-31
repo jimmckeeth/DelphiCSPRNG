@@ -1,18 +1,18 @@
-unit Holon.CSPRNG.Provider.Linux;
+unit Holon.CSRNG.Provider.Linux;
 
 interface
 
 {$IFDEF LINUX}
 
 uses
-  SysUtils, Holon.CSPRNG.Interfaces, Holon.CSPRNG.Provider.Posix;
+  SysUtils, Holon.CSRNG.Interfaces, Holon.CSRNG.Provider.Posix;
 
 type
   /// <summary>
   /// Linux64 implementation of the CSPRNG provider. Descends from TCSPRNGProviderPosix
   /// purely to reuse its /dev/urandom implementation as a fallback; this override tries
   /// the modern getrandom(2) syscall first, which Android does not get (see
-  /// Holon.CSPRNG.Provider.Posix for why), keeping platform-specific behavior out of the
+  /// Holon.CSRNG.Provider.Posix for why), keeping platform-specific behavior out of the
   /// shared Android/generic-POSIX unit.
   /// </summary>
   TCSPRNGProviderLinux = class(TCSPRNGProviderPosix)

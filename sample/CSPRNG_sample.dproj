@@ -4,7 +4,7 @@
         <AppType>Console</AppType>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <FrameworkType>None</FrameworkType>
-        <MainSource>Holon.CSPRNG_sample.dpr</MainSource>
+        <MainSource>Holon.CSRNG_sample.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectGuid>{7F7C03D2-1B62-4C4B-8FA9-C2EEB044296C}</ProjectGuid>
         <ProjectName Condition="'$(ProjectName)'==''">CSPRNG_sample</ProjectName>
@@ -106,13 +106,13 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\src\Holon.CSPRNG.pas"/>
-        <DCCReference Include="..\src\Holon.CSPRNG.Provider.Windows.pas"/>
-        <DCCReference Include="..\src\Holon.CSPRNG.Interfaces.pas"/>
-        <DCCReference Include="..\src\Holon.CSPRNG.Provider.Base.pas"/>
-        <DCCReference Include="..\src\Holon.CSPRNG.Provider.Posix.pas"/>
-        <DCCReference Include="..\src\Holon.CSPRNG.Provider.Linux.pas"/>
-        <DCCReference Include="..\src\Holon.CSPRNG.Provider.Apple.pas"/>
+        <DCCReference Include="..\src\Holon.CSRNG.pas"/>
+        <DCCReference Include="..\src\Holon.CSRNG.Provider.Windows.pas"/>
+        <DCCReference Include="..\src\Holon.CSRNG.Interfaces.pas"/>
+        <DCCReference Include="..\src\Holon.CSRNG.Provider.Base.pas"/>
+        <DCCReference Include="..\src\Holon.CSRNG.Provider.Posix.pas"/>
+        <DCCReference Include="..\src\Holon.CSRNG.Provider.Linux.pas"/>
+        <DCCReference Include="..\src\Holon.CSRNG.Provider.Apple.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -131,7 +131,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">Holon.CSPRNG_sample.dpr</Source>
+                    <Source Name="MainSource">Holon.CSRNG_sample.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>

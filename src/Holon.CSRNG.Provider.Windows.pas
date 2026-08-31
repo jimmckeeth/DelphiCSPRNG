@@ -1,4 +1,4 @@
-unit Holon.CSPRNG.Provider.Windows;
+unit Holon.CSRNG.Provider.Windows;
 
 interface
 
@@ -7,8 +7,8 @@ interface
 uses
   System.SysUtils,
   Winapi.Windows,
-  Holon.CSPRNG.Interfaces,
-  Holon.CSPRNG.Provider.Base;
+  Holon.CSRNG.Interfaces,
+  Holon.CSRNG.Provider.Base;
 
 type
   /// <summary>
