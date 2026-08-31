@@ -19,7 +19,8 @@ uses
   CSPRNG.Provider.Base in '..\src\CSPRNG.Provider.Base.pas',
   CSPRNG.Provider.Windows in '..\src\CSPRNG.Provider.Windows.pas',
   CSPRNG.Provider.Posix in '..\src\CSPRNG.Provider.Posix.pas',
-  CSPRNG.Provider.MacOS64 in '..\src\CSPRNG.Provider.MacOS64.pas';
+  CSPRNG.Provider.Linux in '..\src\CSPRNG.Provider.Linux.pas',
+  CSPRNG.Provider.Apple in '..\src\CSPRNG.Provider.Apple.pas';
 
 { keep comment here to protect the following conditional from being removed by the IDE when adding a unit }
 {$IFNDEF TESTINSIGHT}

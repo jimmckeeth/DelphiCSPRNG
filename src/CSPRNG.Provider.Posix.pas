@@ -5,37 +5,46 @@ interface
 {$IFDEF POSIX}
 
 uses
-  CSPRNG.Provider.Base, SysUtils, Classes, Posix.Base, Posix.Unistd, Posix.Fcntl, Posix.Errno;
+  CSPRNG.Provider.Base, CSPRNG.Interfaces, SysUtils, Classes;
 
 type
   /// <summary>
-  /// Linux (64-bit) implementation of the CSPRNG provider using platform entropy sources.
+  /// Generic POSIX implementation of the CSPRNG provider, reading directly from
+  /// /dev/urandom. Used as-is for Android. Linux64 uses CSPRNG.Provider.Linux's
+  /// TCSPRNGProviderLinux instead, which descends from this class and adds a
+  /// getrandom(2) fast path ahead of the /dev/urandom fallback implemented here.
   /// </summary>
   TCSPRNGProviderPosix = class(TCSPRNGProviderBase)
   protected
     /// <summary>
-    /// Generates a specified number of cryptographically secure random bytes using /dev/urandom.
+    /// Generates cryptographically secure random bytes by reading /dev/urandom, which is
+    /// world-readable without any special permission and is Android's own recommended
+    /// approach for native code (Android's getrandom() libc wrapper is only available
+    /// from API level 28 onward, so /dev/urandom remains the more broadly compatible
+    /// choice here).
     /// </summary>
     function GetBytes(const Count: Integer): TBytes; override;
   end;
 
 implementation
 
-{ TCSPRNGProviderLinux64 }
+{ TCSPRNGProviderPosix }
 
 function TCSPRNGProviderPosix.GetBytes(const Count: Integer): TBytes;
 var
   FileStream: TFileStream;
-  BytesRead: Integer;
 begin
-  SetLength(Result, Count);
+  if Count < 0 then
+    raise ECSPRNGError.Create('Count must be zero or greater');
 
-  // Open /dev/urandom as a file stream
+  SetLength(Result, Count);
+  if Count = 0 then
+    Exit; // Nothing to fill, and Result[0] would be an out-of-bounds access below.
+
   FileStream := TFileStream.Create('/dev/urandom', fmOpenRead);
   try
-    BytesRead := FileStream.Read(Result[0], Count);
-    if BytesRead <> Count then
-      raise Exception.Create('Unable to read sufficient random bytes from /dev/urandom');
+    if FileStream.Read(Result[0], Count) <> Count then
+      raise ECSPRNGError.Create('Unable to read sufficient random bytes from /dev/urandom');
   finally
     FileStream.Free;
   end;
@@ -46,5 +55,3 @@ implementation
 {$ENDIF}
 
 end.
-
-

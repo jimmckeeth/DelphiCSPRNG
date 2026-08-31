@@ -8,27 +8,107 @@ uses
 
 type
   /// <summary>
-  /// Abstract base class for CSPRNG providers.
+  /// Abstract base class for CSPRNG providers. Implements every method of ICSPRNGProvider in
+  /// terms of the single abstract GetBytes method that each platform-specific subclass must
+  /// implement.
   /// </summary>
   TCSPRNGProviderBase = class abstract(TInterfacedObject, ICSPRNGProvider)
 
   protected
+    /// <summary>
+    /// Generates the specified number of cryptographically secure random bytes. Every
+    /// implementation must always return exactly Count bytes or raise an exception - callers
+    /// never check the length of the result.
+    /// </summary>
     function GetBytes(const Count: Integer): TBytes; virtual; abstract;
   public
 
+    /// <summary>
+    /// Generates a cryptographically secure random Double in the range [0, 1).
+    /// </summary>
     function GetFloat: Double;
+
+    /// <summary>
+    /// Generates a cryptographically secure random unsigned 32-bit integer in the
+    /// range [0, max].
+    /// </summary>
     function GetUInt32(const max: UInt32 = High(UInt32)): UInt32;
+
+    /// <summary>
+    /// Generates a cryptographically secure random integer in the range [0, max]. Despite
+    /// the "Int32" name (inherited from ICSPRNGProvider), this never returns a negative
+    /// value; max must be zero or greater.
+    /// </summary>
     function GetInt32(const max: Int32 = High(Int32)): Int32;
+
+    /// <summary>
+    /// Generates a cryptographically secure random integer in the range [0, max]. Despite
+    /// the "Int64" name (inherited from ICSPRNGProvider), this never returns a negative
+    /// value; max must be zero or greater.
+    /// </summary>
     function GetInt64(const max: Int64 = High(Int64)): Int64;
+
+    /// <summary>
+    /// Generates a cryptographically secure random unsigned 64-bit integer in the
+    /// range [0, max]. Uses rejection sampling (rather than a plain modulo) so the
+    /// result is uniformly distributed with no modulo bias and can never exceed max.
+    /// </summary>
     function GetUInt64(const max: UInt64 = High(UInt64)): UInt64;
+
+    /// <summary>
+    /// Generates len cryptographically secure random bytes and returns them
+    /// Base64-encoded. Note that len is the number of source bytes, not the length
+    /// of the resulting string.
+    /// </summary>
     function GetBase64(const len: Integer = 1024): String;
 
     // Helpers
-    class function ToUInt32(const Bytes: TBytes): UInt32;
-    class function ToInt32(const Bytes: TBytes): Int32;
-    class function ToInt64(const Bytes: TBytes): Int64;
-    class function ToUInt64(const Bytes: TBytes): UInt64;
+
+    /// <summary>
+    /// Interprets Bytes as a little-endian 32-bit unsigned integer, zero-padding or
+    /// truncating it to 4 bytes first via PadBytes.
+    /// </summary>
+    class function ToUInt32(const Bytes: TBytes): UInt32; static;
+
+    /// <summary>
+    /// Interprets Bytes as a little-endian 32-bit signed integer, zero-padding or
+    /// truncating it to 4 bytes first via PadBytes.
+    /// </summary>
+    class function ToInt32(const Bytes: TBytes): Int32; static;
+
+    /// <summary>
+    /// Interprets Bytes as a little-endian 64-bit signed integer, zero-padding or
+    /// truncating it to 8 bytes first via PadBytes.
+    /// </summary>
+    class function ToInt64(const Bytes: TBytes): Int64; static;
+
+    /// <summary>
+    /// Interprets Bytes as a little-endian 64-bit unsigned integer, zero-padding or
+    /// truncating it to 8 bytes first via PadBytes.
+    /// </summary>
+    class function ToUInt64(const Bytes: TBytes): UInt64; static;
+
+    /// <summary>
+    /// Returns Bytes resized to exactly PadLength bytes: if Bytes is shorter, the result
+    /// is zero-padded at the start (the most-significant end, given the little-endian
+    /// interpretation used by ToUInt32/ToInt32/ToInt64/ToUInt64); if longer, it is
+    /// truncated to the first PadLength bytes. In normal use this is a no-op, since every
+    /// provider's GetBytes always returns exactly the number of bytes requested.
+    /// </summary>
     class function PadBytes(const Bytes: TBytes; PadLength: Integer): TBytes; static;
+
+    /// <summary>
+    /// The single-draw core of GetUInt64's rejection sampling, split out so it can be
+    /// unit-tested directly against hand-picked worst-case Value inputs rather than only
+    /// via statistical sampling of real random data (some biased/out-of-range outcomes,
+    /// like the one this replaced, occur for only a handful of UInt64 values out of 2^64,
+    /// far too rare to reliably catch by generating real random draws in a test run).
+    /// Returns False if Value falls in the "leftover" cycle at the top of the UInt64
+    /// range and must be discarded and redrawn; otherwise returns True and sets Reduced
+    /// to Value reduced into [0, max] with no modulo bias. max must not be High(UInt64)
+    /// (that case needs no reduction at all - see GetUInt64) or 0.
+    /// </summary>
+    class function TryReduceUInt64(const Value, max: UInt64; out Reduced: UInt64): Boolean; static;
 
   end;
 
@@ -45,7 +125,11 @@ begin
     Exit(0); // Handle the case where max is 0
 
   RandomBytes := GetBytes(SizeOf(UInt32)); // Get 4 random bytes
-  Value := ToUInt64(RandomBytes);
+  // Use ToUInt32 (not ToUInt64): PadBytes zero-pads short input at the start, so
+  // widening these 4 bytes straight through ToUInt64 would push them into the high
+  // 32 bits of the result, leaving the low bits - the only ones a power-of-two modulus
+  // like the default `max` looks at - always zero.
+  Value := UInt64(ToUInt32(RandomBytes));
 
   Result := UInt32(Value mod (UInt64(max) + 1));  // Modulo and cast to UInt32
 end;
@@ -56,20 +140,15 @@ var
   Value: UInt64;
 begin
   if max < 0 then
-    raise Exception.Create('Max value must be greater than or equal to 0');
+    raise ECSPRNGError.Create('Max value must be greater than or equal to 0');
 
   RandomBytes := GetBytes(SizeOf(Int32)); // Get 4 random bytes
-  Value := ToUInt64(RandomBytes); // Convert to UInt64
+  // See GetUInt32 for why this must be ToUInt32, not ToUInt64.
+  Value := UInt64(ToUInt32(RandomBytes));
 
-  // Calculate the range size and adjust the modulo operation for signed values
-  var rangeSize := UInt64(max) + 1; // Range from 0 to max (inclusive)
-  var adjustedValue := Value mod rangeSize;
-
-  // If the adjusted value is too large to fit in Int32 after conversion, subtract the range size
-  if adjustedValue > High(Int32) then
-    adjustedValue := adjustedValue - rangeSize;
-
-  Result := Int32(adjustedValue); // Safely cast to Int32
+  // Value mod (max+1) is always in [0, max], and max <= High(Int32), so the result
+  // always fits Int32 without needing any further adjustment.
+  Result := Int32(Value mod (UInt64(max) + 1));
 end;
 
 function TCSPRNGProviderBase.GetInt64(const max: Int64 = High(Int64)): Int64;
@@ -78,18 +157,14 @@ var
   Value: UInt64;
 begin
   if max < 0 then
-    raise Exception.Create('Max value must be greater than or equal to 0');
+    raise ECSPRNGError.Create('Max value must be greater than or equal to 0');
 
   RandomBytes := GetBytes(SizeOf(Int64));
   Value := ToUInt64(RandomBytes);
 
-  var rangeSize := UInt64(max) + 1;
-  var adjustedValue := Value mod rangeSize;
-
-  if adjustedValue > High(Int64) then
-    adjustedValue := adjustedValue - rangeSize;
-
-  Result := Int64(adjustedValue);
+  // Value mod (max+1) is always in [0, max], and max <= High(Int64), so the result
+  // always fits Int64 without needing any further adjustment.
+  Result := Int64(Value mod (UInt64(max) + 1));
 end;
 
 function TCSPRNGProviderBase.GetUInt64(const max: UInt64 = High(UInt64)): UInt64;
@@ -107,12 +182,29 @@ begin
     Exit(ToUInt64(RandomBytes));
   end;
 
-  RandomBytes := GetBytes(SizeOf(UInt64)); // Get 8 random bytes
-  Value := ToUInt64(RandomBytes);
+  repeat
+    RandomBytes := GetBytes(SizeOf(UInt64)); // Get 8 random bytes
+    Value := ToUInt64(RandomBytes);
+  until TryReduceUInt64(Value, max, Result);
+end;
 
-  // Optimized range reduction without a loop
-  var divisor := High(UInt64) div (max + 1);
-  Result := Value div divisor; // Integer division ensures the result is in the range
+class function TCSPRNGProviderBase.TryReduceUInt64(const Value, max: UInt64; out Reduced: UInt64): Boolean;
+var
+  RangeSize, Threshold: UInt64;
+begin
+  RangeSize := max + 1;
+
+  // Reject draws that fall in the partial "leftover" cycle at the top of the UInt64
+  // range, so that "Value mod RangeSize" is uniformly distributed across [0, max] with
+  // no modulo bias and can never exceed max.
+  // ((High(UInt64) mod RangeSize) + 1) mod RangeSize, computed with UInt64 wraparound,
+  // equals exactly (2^64 mod RangeSize) - i.e. the size of that leftover cycle -
+  // without ever needing to represent 2^64 itself.
+  Threshold := High(UInt64) - ((High(UInt64) mod RangeSize + 1) mod RangeSize);
+
+  Result := Value <= Threshold;
+  if Result then
+    Reduced := Value mod RangeSize;
 end;
 
 
@@ -193,7 +285,7 @@ var
   RandomInt: UInt64;
 begin
   Bytes := GetBytes(SizeOf(UInt64));
-  RandomInt := PUInt64(@Bytes[0])^; // Assuming little-endian
+  RandomInt := ToUInt64(Bytes); // Use the same endian-safe conversion as the integer getters
   Result := RandomInt / UInt64(High(UInt64)); // Scale to [0, 1)
 end;
 

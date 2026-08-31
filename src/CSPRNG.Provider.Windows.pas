@@ -11,39 +11,28 @@ uses
   CSPRNG.Provider.Base;
 
 type
-  BCRYPT_ALG_HANDLE = PVOID;
+  /// <summary>
+  /// Windows implementation of the CSPRNG provider, using the CNG (Cryptography API: Next
+  /// Generation) BCryptGenRandom function with the BCRYPT_USE_SYSTEM_PREFERRED_RNG flag -
+  /// Microsoft's documented recommendation when the caller has no specific reason to pin a
+  /// particular RNG algorithm, letting Windows itself choose (and potentially change,
+  /// across OS updates) its preferred implementation. This also means there's no algorithm
+  /// provider handle to open/close: every call is self-contained.
+  /// </summary>
   TWindowsCSPRNGProvider = class(TCSPRNGProviderBase, ICSPRNGProvider)
-  private
-    FHandle: BCRYPT_ALG_HANDLE;
-    procedure SeedFromEntropySource;           // Add a field to store the seed
-
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    // ICSPRNGProvider implementation
+  protected
+    /// <summary>
+    /// Generates cryptographically secure random bytes using BCryptGenRandom.
+    /// </summary>
     function GetBytes(const Count: Integer): TBytes; override;
   end;
 
 implementation
 
-uses
-  System.Math;
-
 const
-  BCRYPT_RNG_ALGORITHM = 'RNG';
-  BCRYPT_RNG_USE_ENTROPY_IN_BUFFER = $00000001;
+  BCRYPT_USE_SYSTEM_PREFERRED_RNG = $00000002;
 
-type
-  PBCRYPT_ALG_HANDLE = ^BCRYPT_ALG_HANDLE;
-
-function BCryptOpenAlgorithmProvider(phAlgorithm: PBCRYPT_ALG_HANDLE;
-  pszAlgId: LPCWSTR; pszImplementation: LPCWSTR; dwFlags: ULONG): NTSTATUS; stdcall; external 'bcrypt.dll';
-
-function BCryptCloseAlgorithmProvider(hAlgorithm: BCRYPT_ALG_HANDLE;
-  dwFlags: ULONG): NTSTATUS; stdcall; external 'bcrypt.dll';
-
-function BCryptGenRandom(hAlgorithm: BCRYPT_ALG_HANDLE; pbBuffer: PBYTE;
+function BCryptGenRandom(hAlgorithm: PVOID; pbBuffer: PBYTE;
   cbBuffer: ULONG; dwFlags: ULONG): NTSTATUS; stdcall; external 'bcrypt.dll';
 
 const
@@ -52,39 +41,21 @@ const
 
 { TWindowsCSPRNGProvider }
 
-constructor TWindowsCSPRNGProvider.Create;
-begin
-  inherited Create;
-  if BCryptOpenAlgorithmProvider(@FHandle, BCRYPT_RNG_ALGORITHM, nil, 0) <> STATUS_SUCCESS then
-    raise Exception.Create('Failed to open BCrypt RNG provider');
-
-  SeedFromEntropySource();
-end;
-
-destructor TWindowsCSPRNGProvider.Destroy;
-begin
-  BCryptCloseAlgorithmProvider(FHandle, 0);
-  inherited;
-end;
-
-procedure TWindowsCSPRNGProvider.SeedFromEntropySource;
-begin
-  // Use the default system-provided entropy
-  BCryptGenRandom(FHandle, nil, 0, 0);
-end;
-
 function TWindowsCSPRNGProvider.GetBytes(const Count: Integer): TBytes;
 var
   pBytes: PByte;
 begin
+  if Count < 0 then
+    raise ECSPRNGError.Create('Count must be zero or greater');
+
   SetLength(Result, Count);
   pBytes := PByte(Result);
-  if BCryptGenRandom(FHandle, pBytes, Count, 0) <> STATUS_SUCCESS then
-    raise Exception.Create('Failed to generate random bytes');
+  // hAlgorithm must be NULL when BCRYPT_USE_SYSTEM_PREFERRED_RNG is set.
+  if BCryptGenRandom(nil, pBytes, Count, BCRYPT_USE_SYSTEM_PREFERRED_RNG) <> STATUS_SUCCESS then
+    raise ECSPRNGError.Create('Failed to generate random bytes');
 end;
 {$ELSE}
 implementation
 {$ENDIF}
 
 end.
-

@@ -46,6 +46,20 @@ type
     [TestCase('UInt32_DefaultRange', '123456')]
     [TestCase('UInt32_SmallRange', '20')]
     procedure TestGetUInt32(const ExpectedMax: string);
+    [Test]
+    procedure TestGetUInt32_DefaultRange_NotDegenerate;
+    [Test]
+    procedure TestGetInt32_DefaultRange_NotDegenerate;
+
+    [Test]
+    procedure TestTryReduceUInt64_RejectsLeftoverRegion;
+    [Test]
+    procedure TestTryReduceUInt64_AcceptsAndReducesValidValues;
+    [Test]
+    procedure TestTryReduceUInt64_NoRejectionWhenRangeDividesEvenly;
+
+    [Test]
+    procedure TestGetBytes_NegativeCount_RaisesECSPRNGError;
 
     [Test]
     [TestCase('Int64_DefaultRange', '9223372036854775807')]
@@ -79,10 +93,6 @@ type
 
     [Test]
     procedure TestGetFloat_Range;
-    [Test]
-    procedure TestSeedFromBytes;
-    [Test]
-    procedure TestSeedFromEntropySource;
   end;
 
 implementation
@@ -150,6 +160,108 @@ begin
   end;
 end;
 
+procedure TCSPRNGProviderTests.TestGetUInt32_DefaultRange_NotDegenerate;
+const
+  SampleCount = 30;
+var
+  FirstValue, Value: UInt32;
+  AllSame: Boolean;
+  i: Integer;
+begin
+  // Regression test: GetUInt32 (and GetInt32, below) used to always return 0 whenever
+  // max + 1 was a power of two - including the default, no-argument call - because the 4
+  // random bytes were routed through ToUInt64 (an 8-byte conversion) instead of ToUInt32.
+  // A real CSPRNG returning the same value 30 times in a row is practically impossible
+  // (~1/2^32 per repeat), so this reliably catches that failure mode without needing a
+  // mockable random source.
+  FirstValue := FCSPRNGProvider.GetUInt32;
+  AllSame := True;
+  for i := 1 to SampleCount - 1 do
+  begin
+    Value := FCSPRNGProvider.GetUInt32;
+    if Value <> FirstValue then
+      AllSame := False;
+  end;
+  Assert.IsFalse(AllSame, 'GetUInt32 (default range) returned the same value ' +
+    IntToStr(SampleCount) + ' times in a row');
+end;
+
+procedure TCSPRNGProviderTests.TestGetInt32_DefaultRange_NotDegenerate;
+const
+  SampleCount = 30;
+var
+  FirstValue, Value: Int32;
+  AllSame: Boolean;
+  i: Integer;
+begin
+  FirstValue := FCSPRNGProvider.GetInt32;
+  AllSame := True;
+  for i := 1 to SampleCount - 1 do
+  begin
+    Value := FCSPRNGProvider.GetInt32;
+    if Value <> FirstValue then
+      AllSame := False;
+  end;
+  Assert.IsFalse(AllSame, 'GetInt32 (default range) returned the same value ' +
+    IntToStr(SampleCount) + ' times in a row');
+end;
+
+procedure TCSPRNGProviderTests.TestTryReduceUInt64_RejectsLeftoverRegion;
+var
+  Reduced: UInt64;
+begin
+  // Regression test for the original GetUInt64 bug: with max = 5 (RangeSize = 6), the
+  // top 4 values of the UInt64 range [High(UInt64)-3 .. High(UInt64)] don't divide evenly
+  // into whole cycles of 6 and must be rejected. The old division-based implementation
+  // didn't reject them, so e.g. Value = High(UInt64) used to reduce to 6 - one past max.
+  Assert.IsFalse(TCSPRNGProviderBase.TryReduceUInt64(High(UInt64), 5, Reduced),
+    'High(UInt64) should be rejected for max=5 (this is the exact input that used to produce an out-of-range 6)');
+  Assert.IsFalse(TCSPRNGProviderBase.TryReduceUInt64(High(UInt64) - 3, 5, Reduced),
+    'High(UInt64)-3 should still be inside the rejected leftover region for max=5');
+end;
+
+procedure TCSPRNGProviderTests.TestTryReduceUInt64_AcceptsAndReducesValidValues;
+var
+  Reduced: UInt64;
+begin
+  Assert.IsTrue(TCSPRNGProviderBase.TryReduceUInt64(0, 5, Reduced), 'Value 0 should be accepted for max=5');
+  Assert.AreEqual(UInt64(0), Reduced);
+
+  Assert.IsTrue(TCSPRNGProviderBase.TryReduceUInt64(5, 5, Reduced), 'Value 5 should be accepted for max=5');
+  Assert.AreEqual(UInt64(5), Reduced);
+
+  Assert.IsTrue(TCSPRNGProviderBase.TryReduceUInt64(6, 5, Reduced), 'Value 6 should be accepted for max=5');
+  Assert.AreEqual(UInt64(0), Reduced, 'Value 6 mod RangeSize(6) should reduce to 0');
+
+  Assert.IsTrue(TCSPRNGProviderBase.TryReduceUInt64(High(UInt64) - 4, 5, Reduced),
+    'High(UInt64)-4 is just below the rejected leftover region for max=5 and should be accepted');
+  Assert.IsTrue(Reduced <= 5, 'Reduced value must never exceed max');
+end;
+
+procedure TCSPRNGProviderTests.TestTryReduceUInt64_NoRejectionWhenRangeDividesEvenly;
+var
+  Reduced: UInt64;
+begin
+  // max=1 => RangeSize=2, which divides 2^64 with no remainder, so nothing should ever
+  // be rejected - every UInt64 value, including the topmost one, must be accepted.
+  Assert.IsTrue(TCSPRNGProviderBase.TryReduceUInt64(High(UInt64), 1, Reduced),
+    'RangeSize=2 divides 2^64 evenly, so High(UInt64) should never be rejected');
+  Assert.AreEqual(UInt64(1), Reduced);
+
+  Assert.IsTrue(TCSPRNGProviderBase.TryReduceUInt64(0, 1, Reduced));
+  Assert.AreEqual(UInt64(0), Reduced);
+end;
+
+procedure TCSPRNGProviderTests.TestGetBytes_NegativeCount_RaisesECSPRNGError;
+begin
+  Assert.WillRaise(
+    procedure
+    begin
+      FCSPRNGProvider.GetBytes(-1);
+    end,
+    ECSPRNGError);
+end;
+
 procedure TCSPRNGProviderTests.TestGetUInt64(const ExpectedMax: string);
 var
   MaxVal, Value: UInt64;
@@ -203,20 +315,6 @@ begin
     Assert.IsTrue(Value >= 0, 'Float below 0');
     Assert.IsTrue(Value < 1, 'Float not strictly less than 1');
   end;
-end;
-
-procedure TCSPRNGProviderTests.TestSeedFromBytes;
-begin
-  // ... (Implement a test for SeedFromBytes.
-  // This could involve checking for changes in the random output after seeding
-  // or verifying that the same seed produces the same output sequence.)
-end;
-
-procedure TCSPRNGProviderTests.TestSeedFromEntropySource;
-begin
-  // ... (Implement a test for SeedFromEntropySource.
-  // This is more challenging, as it relies on system entropy.
-  // You could potentially check if the output changes after reseeding, but it's not guaranteed.)
 end;
 
 procedure TCSPRNGProviderTests.TestPadBytes_ShortArrayTo4;

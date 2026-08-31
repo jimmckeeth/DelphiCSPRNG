@@ -3,7 +3,7 @@
         <ProjectGuid>{979A6A91-DCB4-482C-AC19-E7D9A41B18D6}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="src\CSPRNG_sample.dproj">
+        <Projects Include="sample\CSPRNG_sample.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="tests\CSPRNG.Tests.dproj">
@@ -21,13 +21,13 @@
         </BorlandProject>
     </ProjectExtensions>
     <Target Name="CSPRNG_sample">
-        <MSBuild Projects="src\CSPRNG_sample.dproj"/>
+        <MSBuild Projects="sample\CSPRNG_sample.dproj"/>
     </Target>
     <Target Name="CSPRNG_sample:Clean">
-        <MSBuild Projects="src\CSPRNG_sample.dproj" Targets="Clean"/>
+        <MSBuild Projects="sample\CSPRNG_sample.dproj" Targets="Clean"/>
     </Target>
     <Target Name="CSPRNG_sample:Make">
-        <MSBuild Projects="src\CSPRNG_sample.dproj" Targets="Make"/>
+        <MSBuild Projects="sample\CSPRNG_sample.dproj" Targets="Make"/>
     </Target>
     <Target Name="CSPRNG_Tests">
         <MSBuild Projects="tests\CSPRNG.Tests.dproj"/>

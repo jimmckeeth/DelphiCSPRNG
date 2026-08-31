@@ -103,7 +103,8 @@
         <DCCReference Include="..\src\CSPRNG.Provider.Base.pas"/>
         <DCCReference Include="..\src\CSPRNG.Provider.Windows.pas"/>
         <DCCReference Include="..\src\CSPRNG.Provider.Posix.pas"/>
-        <DCCReference Include="..\src\CSPRNG.Provider.MacOS64.pas"/>
+        <DCCReference Include="..\src\CSPRNG.Provider.Linux.pas"/>
+        <DCCReference Include="..\src\CSPRNG.Provider.Apple.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
