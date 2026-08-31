@@ -1,4 +1,4 @@
-unit CSPRNG_FMX_Main;
+unit Holon.CSPRNG_FMX_Main;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
 
-  CSPRNG, CSPRNG.Interfaces, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo,
+  CSPRNG, Holon.CSPRNG.Interfaces, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo,
   FMX.Controls.Presentation, FMX.StdCtrls;
 
 type

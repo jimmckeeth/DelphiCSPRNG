@@ -4,7 +4,7 @@
         <AppType>Application</AppType>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <FrameworkType>FMX</FrameworkType>
-        <MainSource>CSPRNG_FMX.dpr</MainSource>
+        <MainSource>Holon.CSPRNG_FMX.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectGuid>{152D4698-4EAC-4079-9777-B9318D4E12A3}</ProjectGuid>
         <ProjectName Condition="'$(ProjectName)'==''">CSPRNG_FMX</ProjectName>
@@ -296,7 +296,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="CSPRNG_FMX_Main.pas">
+        <DCCReference Include="Holon.CSPRNG_FMX_Main.pas">
             <Form>Form28</Form>
             <FormType>fmx</FormType>
         </DCCReference>
@@ -318,7 +318,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">CSPRNG_FMX.dpr</Source>
+                    <Source Name="MainSource">Holon.CSPRNG_FMX.dpr</Source>
                 </Source>
                 <Excluded_Packages/>
             </Delphi.Personality>

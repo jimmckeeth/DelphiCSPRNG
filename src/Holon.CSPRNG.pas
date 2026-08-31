@@ -1,9 +1,9 @@
-unit CSPRNG;
+unit Holon.CSPRNG;
 
 interface
 
 uses
-  System.SysUtils, CSPRNG.Interfaces;
+  System.SysUtils, Holon.CSPRNG.Interfaces;
 
 /// <summary>
 /// Returns a cryptographically secure random number provider appropriate for the
@@ -22,28 +22,28 @@ implementation
 // duplicate GetCSPRNGProvider declaration. Using {$ELSEIF} keeps the branches mutually
 // exclusive regardless of how broadly each symbol is defined.
 {$IF Defined(MSWINDOWS)}
-uses CSPRNG.Provider.Windows;
+uses Holon.CSPRNG.Provider.Windows;
 
 function GetCSPRNGProvider: ICSPRNGProvider;
 begin
   Result := TWindowsCSPRNGProvider.Create; // Create Windows provider
 end;
 {$ELSEIF Defined(MACOS)}
-uses CSPRNG.Provider.Apple;
+uses Holon.CSPRNG.Provider.Apple;
 
 function GetCSPRNGProvider: ICSPRNGProvider;
 begin
   Result := TCSPRNGProviderApple.Create; // Create macOS/iOS provider
 end;
 {$ELSEIF Defined(LINUX)}
-uses CSPRNG.Provider.Linux;
+uses Holon.CSPRNG.Provider.Linux;
 
 function GetCSPRNGProvider: ICSPRNGProvider;
 begin
   Result := TCSPRNGProviderLinux.Create; // Create Linux64 provider
 end;
 {$ELSEIF Defined(POSIX)}
-uses CSPRNG.Provider.Posix;
+uses Holon.CSPRNG.Provider.Posix;
 
 function GetCSPRNGProvider: ICSPRNGProvider;
 begin

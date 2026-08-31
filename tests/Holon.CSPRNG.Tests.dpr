@@ -1,4 +1,4 @@
-program CSPRNG.Tests;
+program Holon.CSPRNG.Tests;
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -13,14 +13,14 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
-  CSPRNG.Tests.Providers in 'CSPRNG.Tests.Providers.pas',
-  CSPRNG.Interfaces in '..\src\CSPRNG.Interfaces.pas',
-  CSPRNG in '..\src\CSPRNG.pas',
-  CSPRNG.Provider.Base in '..\src\CSPRNG.Provider.Base.pas',
-  CSPRNG.Provider.Windows in '..\src\CSPRNG.Provider.Windows.pas',
-  CSPRNG.Provider.Posix in '..\src\CSPRNG.Provider.Posix.pas',
-  CSPRNG.Provider.Linux in '..\src\CSPRNG.Provider.Linux.pas',
-  CSPRNG.Provider.Apple in '..\src\CSPRNG.Provider.Apple.pas';
+  Holon.CSPRNG.Tests.Providers in 'Holon.CSPRNG.Tests.Providers.pas',
+  Holon.CSPRNG.Interfaces in '..\src\Holon.CSPRNG.Interfaces.pas',
+  Holon.CSPRNG in '..\src\Holon.CSPRNG.pas',
+  Holon.CSPRNG.Provider.Base in '..\src\Holon.CSPRNG.Provider.Base.pas',
+  Holon.CSPRNG.Provider.Windows in '..\src\Holon.CSPRNG.Provider.Windows.pas',
+  Holon.CSPRNG.Provider.Posix in '..\src\Holon.CSPRNG.Provider.Posix.pas',
+  Holon.CSPRNG.Provider.Linux in '..\src\Holon.CSPRNG.Provider.Linux.pas',
+  Holon.CSPRNG.Provider.Apple in '..\src\Holon.CSPRNG.Provider.Apple.pas';
 
 { keep comment here to protect the following conditional from being removed by the IDE when adding a unit }
 {$IFNDEF TESTINSIGHT}

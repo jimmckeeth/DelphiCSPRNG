@@ -1,9 +1,9 @@
-unit CSPRNG.Provider.Base;
+unit Holon.CSPRNG.Provider.Base;
 
 interface
 
 uses
-  System.SysUtils, CSPRNG.Interfaces,
+  System.SysUtils, Holon.CSPRNG.Interfaces,
   System.NetEncoding;
 
 type

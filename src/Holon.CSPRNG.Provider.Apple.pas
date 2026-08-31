@@ -1,11 +1,11 @@
-unit CSPRNG.Provider.Apple;
+unit Holon.CSPRNG.Provider.Apple;
 
 interface
 
 {$IFDEF MACOS}
 
 uses
-  CSPRNG.Provider.Base, CSPRNG.Interfaces, Macapi.CoreFoundation, Macapi.Security, SysUtils;
+  Holon.CSPRNG.Provider.Base, Holon.CSPRNG.Interfaces, Macapi.CoreFoundation, Macapi.Security, SysUtils;
 
 type
   /// <summary>

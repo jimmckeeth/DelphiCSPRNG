@@ -1,4 +1,4 @@
-unit CSPRNG.Interfaces;
+unit Holon.CSPRNG.Interfaces;
 
 interface
 
@@ -14,7 +14,7 @@ type
 
   /// <summary>
   /// Cross-platform interface to a cryptographically secure pseudo-random number generator.
-  /// Obtain an instance via CSPRNG.GetCSPRNGProvider, which selects the correct
+  /// Obtain an instance via Holon.CSPRNG.GetCSPRNGProvider, which selects the correct
   /// platform-specific implementation (Windows CNG, /dev/urandom or getrandom(2) on
   /// Linux/Android, or the Security framework on macOS/iOS) at compile time.
   /// </summary>

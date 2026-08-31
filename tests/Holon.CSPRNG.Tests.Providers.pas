@@ -1,12 +1,12 @@
-unit CSPRNG.Tests.Providers;
+unit Holon.CSPRNG.Tests.Providers;
 
 interface
 
 uses
   SysUtils,
   DUnitX.TestFramework,
-  CSPRNG,
-  CSPRNG.Interfaces;
+  Holon.CSPRNG,
+  Holon.CSPRNG.Interfaces;
 
 type
 
@@ -102,7 +102,7 @@ uses
   System.NetEncoding,
   System.Generics.Collections,
   System.Classes,
-  CSPRNG.Provider.Base;
+  Holon.CSPRNG.Provider.Base;
 
 { TCSPRNGProviderTests }
 

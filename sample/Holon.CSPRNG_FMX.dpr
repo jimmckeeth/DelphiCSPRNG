@@ -1,9 +1,9 @@
-program CSPRNG_FMX;
+program Holon.CSPRNG_FMX;
 
 uses
   System.StartUpCopy,
   FMX.Forms,
-  CSPRNG_FMX_Main in 'CSPRNG_FMX_Main.pas' {Form28};
+  Holon.CSPRNG_FMX_Main in 'Holon.CSPRNG_FMX_Main.pas' {Form28};
 
 {$R *.res}
 

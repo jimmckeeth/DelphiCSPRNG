@@ -1,4 +1,4 @@
-program CSPRNG_sample;
+program Holon.CSPRNG_sample;
 
 {$APPTYPE CONSOLE}
 
@@ -6,17 +6,17 @@ program CSPRNG_sample;
 
 uses
   System.SysUtils,
-  CSPRNG in '..\src\CSPRNG.pas',
-  CSPRNG.Provider.Windows in '..\src\CSPRNG.Provider.Windows.pas',
-  CSPRNG.Interfaces in '..\src\CSPRNG.Interfaces.pas',
-  CSPRNG.Provider.Base in '..\src\CSPRNG.Provider.Base.pas',
-  CSPRNG.Provider.Posix in '..\src\CSPRNG.Provider.Posix.pas',
-  CSPRNG.Provider.Linux in '..\src\CSPRNG.Provider.Linux.pas',
-  CSPRNG.Provider.Apple in '..\src\CSPRNG.Provider.Apple.pas';
+  Holon.CSPRNG in '..\src\Holon.CSPRNG.pas',
+  Holon.CSPRNG.Provider.Windows in '..\src\Holon.CSPRNG.Provider.Windows.pas',
+  Holon.CSPRNG.Interfaces in '..\src\Holon.CSPRNG.Interfaces.pas',
+  Holon.CSPRNG.Provider.Base in '..\src\Holon.CSPRNG.Provider.Base.pas',
+  Holon.CSPRNG.Provider.Posix in '..\src\Holon.CSPRNG.Provider.Posix.pas',
+  Holon.CSPRNG.Provider.Linux in '..\src\Holon.CSPRNG.Provider.Linux.pas',
+  Holon.CSPRNG.Provider.Apple in '..\src\Holon.CSPRNG.Provider.Apple.pas';
 
 begin
   try
-    var rnd := GetCSPRNGProvider;
+    var rnd := Holon.CSPRNG.GetCSPRNGProvider;
     for var b in rnd.GetBytes(1000) do
     begin
       write(IntToHex(b, 2).ToLower);
