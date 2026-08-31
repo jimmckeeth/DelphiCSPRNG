@@ -98,6 +98,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Holon.CSRNG.Tests.Providers.pas"/>
+        <DCCReference Include="Holon.SecureMemory.Tests.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Interfaces.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Base.pas"/>
@@ -105,6 +106,8 @@
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Posix.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Linux.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Apple.pas"/>
+        <DCCReference Include="..\src\Holon.SecureMemory.pas"/>
+        <DCCReference Include="..\src\Holon.SecureMemory.Platform.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

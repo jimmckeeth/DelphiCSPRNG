@@ -95,6 +95,33 @@ None of these are configurable or overridable by a caller - each platform unit h
 
 If a future consumer needs a different source (e.g. a hardware RNG, a specific FIPS-validated algorithm, or a deterministic RNG for testing), that would require either a new `ICSPRNGProvider` implementation entirely, or extending the provider construction path (`Holon.CSRNG.GetCSPRNGProvider`) to accept a selector - today it always returns the one hardcoded choice for the current platform.
 
+## Holon.SecureMemory
+
+`Holon.SecureMemory.pas` provides `TSecureBytes`, a guarded, swap-locked container for secret bytes (keys, tokens, passwords) - a separate, optional unit; nothing in `Holon.CSRNG` requires it except that `Holon.CSRNG.Provider.Base.pas` uses its `SecureZeroBytes` helper to wipe its own intermediate buffers.
+
+Neither `TBytes` nor `String` can be made secure in Delphi: `SetLength` may realloc-and-copy, stranding plaintext in freed heap the caller has no way to reach, and strings are copy-on-write and refcounted, so copies multiply invisibly. `TSecureBytes` instead owns a page-aligned block it allocates itself with `VirtualAlloc`/`mmap` and never reallocates, laid out as:
+
+```
+[ guard page: PROT_NONE ] [ padding ] [ canary ] [ user data ] [ guard page: PROT_NONE ]
+```
+
+with the data flush against the trailing guard page (an overflow off the end faults the process immediately, via the MMU) and an 8-byte random canary immediately before it (an underflow corrupts the canary before it can reach the leading guard page). This follows libsodium's `sodium_malloc` design rather than an encrypt-at-rest scheme like the (now-deprecated) .NET `SecureString`: a masking key necessarily lives in the same address space as the data it protects, so obfuscation is a speed bump, not a wall; MMU-enforced access control is what actually helps. See `docs/secure-memory-plan.md` for the full design rationale, including the .NET/libsodium/OpenSSL/memguard research behind that choice.
+
+```Delphi
+uses Holon.CSRNG, Holon.CSRNG.Interfaces, Holon.SecureMemory;
+
+var Key := TSecureBytes.FromProvider(Holon.CSRNG.GetCSPRNGProvider, 32); // generates and stores a 32-byte key
+var A := Key.Access;       // pages become readable/writable for as long as A is alive
+Writeln(Key.Locked);       // whether mlock/VirtualLock actually succeeded - see below
+// use A.Data / A.Size ...
+```
+
+The data is only readable/writable while a `TSecureAccess` obtained from `TSecureBytes.Access` is alive (nested/copied `Access` calls are reference-counted; the pages reseal only when the last one expires); it's otherwise sealed (`PROT_NONE`/`PAGE_NOACCESS`) and, where the platform allows it, kept out of swap (`mlock`/`VirtualLock`) and crash dumps (`madvise(MADV_DONTDUMP)` on Linux; `WerRegisterExcludedMemoryBlock` on Windows 10+). Locking is **best-effort**: `RLIMIT_MEMLOCK` is commonly as low as 64 KB, and tighter still on Android/iOS, so a failed lock is not treated as an error - check the `Locked` property if a caller needs to know.
+
+A detected canary corruption raises `ESecureMemoryError` (descends from `ECSPRNGError`) - either immediately, from `Access`, if the corruption is found when reopening; or from the container's own cleanup (`class operator Finalize`/`Assign`), if it's found when the container is freed or overwritten. Assigning one `TSecureBytes` to another (`B := A;`) performs a deep copy into a fresh, independently-allocated block, never aliasing.
+
+**Not implemented**: an optional keystream-masking layer (XOR the buffer with an HMAC-derived stream while sealed) was designed as an extra defense-in-depth measure against crash-dump scraping, but was judged not worth the added complexity given guard pages + canary + swap-locking are already the load-bearing protection - see "Implementation notes" in `docs/secure-memory-plan.md`. **Also out of scope entirely**: OS-level secret storage (Keychain/Secure Enclave, DPAPI/CNG, the Linux kernel keyring, a TPM) keeps a secret out of the process's address space altogether and is *strictly stronger* than anything an in-process container can offer - prefer it over `TSecureBytes` wherever it's available for your target platform.
+
 ## Fixed since the initial version
 
 A code review turned up several real bugs, since fixed:

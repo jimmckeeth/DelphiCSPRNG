@@ -1,6 +1,10 @@
 # Design proposal: secure memory container for DelphiCSPRNG
 
-**Status:** proposed, not implemented. Captured for later.
+**Status:** Phases 1 and 2 implemented, on the `securememory` branch (`src/Holon.SecureMemory.pas`,
+`src/Holon.SecureMemory.Platform.pas`). Phase 3 (optional keystream masking) is
+deliberately not implemented - see "Implementation notes" at the end of this
+document for what shipped, what was verified and how, and what deviated from the
+plan below (which is otherwise left as originally written, for context).
 
 ## Context
 
@@ -136,3 +140,16 @@ Guard-page traps and the non-elidable-zeroing guarantee **cannot be asserted por
 - **OS keyrings / hardware**: Keychain + Secure Enclave (Apple), DPAPI/CNG (Windows), kernel keyring (Linux), TPM. These keep secrets out of the address space entirely and are *strictly stronger* than anything here — on iOS/macOS, Keychain is the actual best practice. Worth a README pointer so readers aren't misled into thinking this container is the top of the ladder.
 - Anti-debugging / `PT_DENY_ATTACH`.
 - Securing `String`-typed returns — not fixable given COW semantics; documented instead.
+
+## Implementation notes
+
+What actually shipped, on the `securememory` branch, differs from the plan above in a few places - noted here rather than silently left inconsistent:
+
+- **`ESecureMemoryError`** is defined in `src/Holon.SecureMemory.pas` itself, as `class(ECSPRNGError)`, rather than by editing `Holon.CSRNG.Interfaces.pas`. Same inheritance relationship the plan called for ("reuse existing `ECSPRNGError`"); it just didn't require touching the CSRNG unit, since `Holon.SecureMemory.pas` already imports `Holon.CSRNG.Interfaces` for `ICSPRNGProvider`.
+- **Layout matches the plan's diagram exactly**: guard page (`PROT_NONE`) / padding / 8-byte canary / user data flush against the trailing guard page / guard page (`PROT_NONE`). The canary is generated per-allocation from `Holon.CSRNG.GetCSPRNGProvider`, independently of whichever provider a `FromProvider` caller supplied for the payload itself.
+- **`TSecureBytes.Allocate`/`FromProvider`/`ReleaseBlock` are implemented as `out`-parameter procedures internally** (`DoAllocate(...; out Rec: TSecureBytes)`), not as functions returning `TSecureBytes` by value, and every internal field transfer is done one field at a time rather than via `:=`. This was load-bearing, not stylistic: `class operator Assign` fires on *any* `TSecureBytes := TSecureBytes` assignment, including ones the type's own methods would otherwise perform internally (e.g. `Result := AllocateInternal(...)`), which risks infinite recursion or accidental double-allocation if the internal construction path itself uses `:=`. Populating fields directly sidesteps the question entirely rather than depending on exact compiler codegen behavior for record return-value construction.
+- **`TSecureAccess` needed its own `class operator Assign`**, which the plan's sketch didn't include. `var A := Key.Access;` copies the function's return value into `A`; without a defined `Assign`, nothing would keep `FAccessDepth` on the originating `TSecureBytes` balanced across that copy. `Assign` treats copying a live `TSecureAccess` as taking out an additional, independently-expiring borrow (incrementing the owner's `FAccessDepth`), which stays correct regardless of the exact mechanics the compiler uses for the return-value copy.
+- **A real bug was caught by the test suite, not by review**: the first version of `class operator TSecureBytes.Assign` unsealed the *source*'s pages before the deep-copy `Move`, but not the freshly-allocated destination's pages (`DoAllocate` always returns sealed) — an immediate access-violation on `TestAssign_DeepCopy_Independent`, i.e. the guard-page mechanism catching a real bug in the code meant to respect it. Fixed by unsealing both sides before the copy.
+- **Phase 3 (keystream masking) was not implemented.** Guard pages + canary + swap-locking (Phases 1–2) are the load-bearing mechanism per the plan's own framing; masking was explicitly "defense-in-depth, not load-bearing," and the added complexity (a second guarded key allocation, re-keying on every reseal) wasn't judged worth it for a first pass. Tracked here as the actual remaining follow-up, not silently dropped.
+- **Verification actually performed**: full DUnitX suite (50 tests total, including the new `TSecureMemoryTests` fixture) passes on Win32. The Linux64 build compiles and links cleanly against the real Ubuntu 26.04 SDK/libc (`mmap`/`mprotect`/`mlock`/`munlock`/`madvise`/`getpagesize` all resolve). The non-elidable-zeroing claim was verified concretely, not assumed: `llvm-objdump` (bundled with Delphi 37.0, at `bin64\llvm-objdump.exe`) against the Release Linux64 build of `Holon.SecureMemory.o` shows `SecureZeroBytes` loading the `DoZero` function pointer from memory (`movq (%rip), %rax`) and calling through it (`callq *(%rax)`) rather than inlining or eliding the `FillChar`. What was **not** verified: actually running the Linux64 binary (no WSL/Linux host was available in the build environment - the build script only compiles/links) and deliberately triggering a guard-page fault under SEH on Windows (covered instead by the two canary-corruption tests, which exercise the "detected corruption" path without needing to catch a hardware exception from within DUnitX). Both remain open manual checks, consistent with how the plan itself flagged them as non-automatable.
+- **The sample app** (`sample/Holon.CSRNG_sample.dpr`) now demonstrates `TSecureBytes.FromProvider` generating and printing a 32-byte key and reporting whether `mlock`/`VirtualLock` succeeded, serving as an additional real, compiled-and-run smoke test beyond the unit tests.

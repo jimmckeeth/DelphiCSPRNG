@@ -14,13 +14,16 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   Holon.CSRNG.Tests.Providers in 'Holon.CSRNG.Tests.Providers.pas',
+  Holon.SecureMemory.Tests in 'Holon.SecureMemory.Tests.pas',
   Holon.CSRNG.Interfaces in '..\src\Holon.CSRNG.Interfaces.pas',
   Holon.CSRNG in '..\src\Holon.CSRNG.pas',
   Holon.CSRNG.Provider.Base in '..\src\Holon.CSRNG.Provider.Base.pas',
   Holon.CSRNG.Provider.Windows in '..\src\Holon.CSRNG.Provider.Windows.pas',
   Holon.CSRNG.Provider.Posix in '..\src\Holon.CSRNG.Provider.Posix.pas',
   Holon.CSRNG.Provider.Linux in '..\src\Holon.CSRNG.Provider.Linux.pas',
-  Holon.CSRNG.Provider.Apple in '..\src\Holon.CSRNG.Provider.Apple.pas';
+  Holon.CSRNG.Provider.Apple in '..\src\Holon.CSRNG.Provider.Apple.pas',
+  Holon.SecureMemory in '..\src\Holon.SecureMemory.pas',
+  Holon.SecureMemory.Platform in '..\src\Holon.SecureMemory.Platform.pas';
 
 { keep comment here to protect the following conditional from being removed by the IDE when adding a unit }
 {$IFNDEF TESTINSIGHT}
