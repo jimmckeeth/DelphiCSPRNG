@@ -121,6 +121,7 @@
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Apple.pas"/>
         <DCCReference Include="..\src\Holon.SecureMemory.pas"/>
         <DCCReference Include="..\src\Holon.SecureMemory.Platform.pas"/>
+        <DCCReference Include="..\src\Holon.ValidateRNG.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

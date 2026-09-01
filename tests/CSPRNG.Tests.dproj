@@ -104,6 +104,8 @@
         </DelphiCompile>
         <DCCReference Include="Holon.CSRNG.Tests.Providers.pas"/>
         <DCCReference Include="Holon.SecureMemory.Tests.pas"/>
+        <DCCReference Include="Holon.ValidateRNG.Tests.pas"/>
+        <DCCReference Include="..\src\Holon.ValidateRNG.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Interfaces.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Base.pas"/>
