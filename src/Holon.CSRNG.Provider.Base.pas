@@ -114,6 +114,26 @@ type
 
 implementation
 
+{$IFDEF HOLON_CSRNG_USE_SECUREMEMORY}
+uses
+  Holon.SecureMemory; // for SecureZeroBytes, used by WipeIntermediate below
+{$ENDIF}
+
+// Wipes a TBytes intermediate immediately before it's discarded (e.g. the random
+// bytes GetUInt32/GetBase64 draw internally), but only when HOLON_CSRNG_USE_SECUREMEMORY
+// is defined - off by default, so Holon.CSRNG has no dependency on Holon.SecureMemory
+// (a separate, optional unit) unless a consumer explicitly opts in, e.g. by adding
+// HOLON_CSRNG_USE_SECUREMEMORY to a project's DCC_Define. With the define off, this
+// is a no-op: the intermediate is simply left for the memory manager/GC to reclaim
+// as normal, same as before Holon.SecureMemory existed.
+procedure WipeIntermediate(const B: TBytes); inline;
+begin
+  {$IFDEF HOLON_CSRNG_USE_SECUREMEMORY}
+  if Length(B) > 0 then
+    Holon.SecureMemory.SecureZeroBytes(@B[0], Length(B));
+  {$ENDIF}
+end;
+
 { TCSPRNGProviderBase }
 
 function TCSPRNGProviderBase.GetUInt32(const max: UInt32 = High(UInt32)): UInt32;
@@ -125,13 +145,17 @@ begin
     Exit(0); // Handle the case where max is 0
 
   RandomBytes := GetBytes(SizeOf(UInt32)); // Get 4 random bytes
-  // Use ToUInt32 (not ToUInt64): PadBytes zero-pads short input at the start, so
-  // widening these 4 bytes straight through ToUInt64 would push them into the high
-  // 32 bits of the result, leaving the low bits - the only ones a power-of-two modulus
-  // like the default `max` looks at - always zero.
-  Value := UInt64(ToUInt32(RandomBytes));
+  try
+    // Use ToUInt32 (not ToUInt64): PadBytes zero-pads short input at the start, so
+    // widening these 4 bytes straight through ToUInt64 would push them into the high
+    // 32 bits of the result, leaving the low bits - the only ones a power-of-two modulus
+    // like the default `max` looks at - always zero.
+    Value := UInt64(ToUInt32(RandomBytes));
 
-  Result := UInt32(Value mod (UInt64(max) + 1));  // Modulo and cast to UInt32
+    Result := UInt32(Value mod (UInt64(max) + 1));  // Modulo and cast to UInt32
+  finally
+    WipeIntermediate(RandomBytes);
+  end;
 end;
 
 function TCSPRNGProviderBase.GetInt32(const max: Int32 = High(Int32)): Int32;
@@ -143,12 +167,16 @@ begin
     raise ECSPRNGError.Create('Max value must be greater than or equal to 0');
 
   RandomBytes := GetBytes(SizeOf(Int32)); // Get 4 random bytes
-  // See GetUInt32 for why this must be ToUInt32, not ToUInt64.
-  Value := UInt64(ToUInt32(RandomBytes));
+  try
+    // See GetUInt32 for why this must be ToUInt32, not ToUInt64.
+    Value := UInt64(ToUInt32(RandomBytes));
 
-  // Value mod (max+1) is always in [0, max], and max <= High(Int32), so the result
-  // always fits Int32 without needing any further adjustment.
-  Result := Int32(Value mod (UInt64(max) + 1));
+    // Value mod (max+1) is always in [0, max], and max <= High(Int32), so the result
+    // always fits Int32 without needing any further adjustment.
+    Result := Int32(Value mod (UInt64(max) + 1));
+  finally
+    WipeIntermediate(RandomBytes);
+  end;
 end;
 
 function TCSPRNGProviderBase.GetInt64(const max: Int64 = High(Int64)): Int64;
@@ -160,11 +188,15 @@ begin
     raise ECSPRNGError.Create('Max value must be greater than or equal to 0');
 
   RandomBytes := GetBytes(SizeOf(Int64));
-  Value := ToUInt64(RandomBytes);
+  try
+    Value := ToUInt64(RandomBytes);
 
-  // Value mod (max+1) is always in [0, max], and max <= High(Int64), so the result
-  // always fits Int64 without needing any further adjustment.
-  Result := Int64(Value mod (UInt64(max) + 1));
+    // Value mod (max+1) is always in [0, max], and max <= High(Int64), so the result
+    // always fits Int64 without needing any further adjustment.
+    Result := Int64(Value mod (UInt64(max) + 1));
+  finally
+    WipeIntermediate(RandomBytes);
+  end;
 end;
 
 function TCSPRNGProviderBase.GetUInt64(const max: UInt64 = High(UInt64)): UInt64;
@@ -179,12 +211,20 @@ begin
   if max = High(UInt64) then
   begin
     RandomBytes := GetBytes(SizeOf(UInt64)); // Get 8 random bytes
-    Exit(ToUInt64(RandomBytes));
+    try
+      Exit(ToUInt64(RandomBytes));
+    finally
+      WipeIntermediate(RandomBytes);
+    end;
   end;
 
   repeat
     RandomBytes := GetBytes(SizeOf(UInt64)); // Get 8 random bytes
-    Value := ToUInt64(RandomBytes);
+    try
+      Value := ToUInt64(RandomBytes);
+    finally
+      WipeIntermediate(RandomBytes);
+    end;
   until TryReduceUInt64(Value, max, Result);
 end;
 
@@ -285,8 +325,12 @@ var
   RandomInt: UInt64;
 begin
   Bytes := GetBytes(SizeOf(UInt64));
-  RandomInt := ToUInt64(Bytes); // Use the same endian-safe conversion as the integer getters
-  Result := RandomInt / UInt64(High(UInt64)); // Scale to [0, 1)
+  try
+    RandomInt := ToUInt64(Bytes); // Use the same endian-safe conversion as the integer getters
+    Result := RandomInt / UInt64(High(UInt64)); // Scale to [0, 1)
+  finally
+    WipeIntermediate(Bytes);
+  end;
 end;
 
 function TCSPRNGProviderBase.GetBase64(const len: Integer = 1024): String;
@@ -294,11 +338,19 @@ var
   Bytes: TBytes;
 begin
   Bytes := GetBytes(len);
-  var Encoding := TBase64Encoding.Create(0);
   try
-    Result := Encoding.EncodeBytesToString(Bytes); // Convert to Base64
+    var Encoding := TBase64Encoding.Create(0);
+    try
+      Result := Encoding.EncodeBytesToString(Bytes); // Convert to Base64
+    finally
+      Encoding.Free;
+    end;
   finally
-    Encoding.Free;
+    // Note: Result itself (a String) is copy-on-write and refcounted and so cannot
+    // be wiped this way - only this intermediate TBytes can be. Callers who need a
+    // wipeable secret should use GetBytes + Holon.SecureMemory.TSecureBytes
+    // instead of GetBase64.
+    WipeIntermediate(Bytes);
   end;
 end;
 

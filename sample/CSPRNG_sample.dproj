@@ -55,6 +55,12 @@
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <!-- Enables Holon.CSRNG.Provider.Base's optional use of Holon.SecureMemory to
+             wipe its intermediate buffers - see HOLON_CSRNG_USE_SECUREMEMORY in
+             src/Holon.CSRNG.Provider.Base.pas. Off by default for third-party
+             consumers of Holon.CSRNG alone; on here since the sample also
+             demonstrates Holon.SecureMemory directly. -->
+        <DCC_Define>HOLON_CSRNG_USE_SECUREMEMORY;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -113,6 +119,9 @@
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Posix.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Linux.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Apple.pas"/>
+        <DCCReference Include="..\src\Holon.SecureMemory.pas"/>
+        <DCCReference Include="..\src\Holon.SecureMemory.Platform.pas"/>
+        <DCCReference Include="..\src\Holon.ValidateRNG.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

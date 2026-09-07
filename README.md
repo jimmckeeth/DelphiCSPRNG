@@ -95,6 +95,53 @@ None of these are configurable or overridable by a caller - each platform unit h
 
 If a future consumer needs a different source (e.g. a hardware RNG, a specific FIPS-validated algorithm, or a deterministic RNG for testing), that would require either a new `ICSPRNGProvider` implementation entirely, or extending the provider construction path (`Holon.CSRNG.GetCSPRNGProvider`) to accept a selector - today it always returns the one hardcoded choice for the current platform.
 
+## Holon.SecureMemory
+
+`Holon.SecureMemory.pas` provides `TSecureBytes`, a guarded, swap-locked container for secret bytes (keys, tokens, passwords) - a separate, optional unit that `Holon.CSRNG` has no hard dependency on. `Holon.CSRNG.Provider.Base.pas` *can* use its `SecureZeroBytes` helper to wipe its own intermediate buffers, but only when the `HOLON_CSRNG_USE_SECUREMEMORY` compiler define is set (e.g. via a project's `DCC_Define`, as both `sample/CSPRNG_sample.dproj` and `tests/CSPRNG.Tests.dproj` do). With the define off - the default - `Holon.CSRNG.Provider.Base.pas` compiles and runs with zero reference to `Holon.SecureMemory.pas`, so a project that only wants random numbers never has to pull in the extra unit.
+
+Neither `TBytes` nor `String` can be made secure in Delphi: `SetLength` may realloc-and-copy, stranding plaintext in freed heap the caller has no way to reach, and strings are copy-on-write and refcounted, so copies multiply invisibly. `TSecureBytes` instead owns a page-aligned block it allocates itself with `VirtualAlloc`/`mmap` and never reallocates, laid out as:
+
+```
+[ guard page: PROT_NONE ] [ padding ] [ canary ] [ user data ] [ guard page: PROT_NONE ]
+```
+
+with the data flush against the trailing guard page (an overflow off the end faults the process immediately, via the MMU) and an 8-byte random canary immediately before it (an underflow corrupts the canary before it can reach the leading guard page). This follows libsodium's `sodium_malloc` design rather than an encrypt-at-rest scheme like the (now-deprecated) .NET `SecureString`: a masking key necessarily lives in the same address space as the data it protects, so obfuscation is a speed bump, not a wall; MMU-enforced access control is what actually helps. See `docs/secure-memory-plan.md` for the full design rationale, including the .NET/libsodium/OpenSSL/memguard research behind that choice.
+
+```Delphi
+uses Holon.CSRNG, Holon.CSRNG.Interfaces, Holon.SecureMemory;
+
+var Key := TSecureBytes.FromProvider(Holon.CSRNG.GetCSPRNGProvider, 32); // generates and stores a 32-byte key
+var A := Key.Access;       // pages become readable/writable for as long as A is alive
+Writeln(Key.Locked);       // whether mlock/VirtualLock actually succeeded - see below
+// use A.Data / A.Size ...
+```
+
+The data is only readable/writable while a `TSecureAccess` obtained from `TSecureBytes.Access` is alive (nested/copied `Access` calls are reference-counted; the pages reseal only when the last one expires); it's otherwise sealed (`PROT_NONE`/`PAGE_NOACCESS`) and, where the platform allows it, kept out of swap (`mlock`/`VirtualLock`) and crash dumps (`madvise(MADV_DONTDUMP)` on Linux; `WerRegisterExcludedMemoryBlock` on Windows 10+). Locking is **best-effort**: `RLIMIT_MEMLOCK` is commonly as low as 64 KB, and tighter still on Android/iOS, so a failed lock is not treated as an error - check the `Locked` property if a caller needs to know.
+
+A detected canary corruption raises `ESecureMemoryError` (descends from `ECSPRNGError`) - either immediately, from `Access`, if the corruption is found when reopening; or from the container's own cleanup (`class operator Finalize`/`Assign`), if it's found when the container is freed or overwritten. Assigning one `TSecureBytes` to another (`B := A;`) performs a deep copy into a fresh, independently-allocated block, never aliasing.
+
+**Not implemented**: an optional keystream-masking layer (XOR the buffer with an HMAC-derived stream while sealed) was designed as an extra defense-in-depth measure against crash-dump scraping, but was judged not worth the added complexity given guard pages + canary + swap-locking are already the load-bearing protection - see "Implementation notes" in `docs/secure-memory-plan.md`. **Also out of scope entirely**: OS-level secret storage (Keychain/Secure Enclave, DPAPI/CNG, the Linux kernel keyring, a TPM) keeps a secret out of the process's address space altogether and is *strictly stronger* than anything an in-process container can offer - prefer it over `TSecureBytes` wherever it's available for your target platform.
+
+## Holon.ValidateRNG
+
+`Holon.ValidateRNG.pas` implements 7 of the 15 statistical tests in [NIST SP 800-22 Rev 1a](https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-22r1a.pdf) ("A Statistical Test Suite for Random and Pseudorandom Number Generators for Cryptographic Applications"): **Frequency (Monobit)**, **Frequency within a Block**, **Runs**, **Longest Run of Ones in a Block**, **Binary Matrix Rank**, **Cumulative Sums (Cusum)**, and **Approximate Entropy**. Like `Holon.SecureMemory`, this is a separate, optional unit with no back-reference from `Holon.CSRNG`.
+
+```Delphi
+uses Holon.CSRNG, Holon.CSRNG.Interfaces, Holon.ValidateRNG;
+
+var Results := TRandomnessTests.RunSuite(Holon.CSRNG.GetCSPRNGProvider, 40000); // 40,000 bits
+for var R in Results do
+  Writeln(R.TestName, ': p=', R.PValue:0:6, ' ', BoolToStr(R.Passed, True));
+```
+
+Each test returns a `TRandomnessTestResult` (`TestName`, `PValue`, `Passed`, and a `Detail` string with the key intermediate statistic). `Passed` uses NIST's standard significance level, α=0.01 - a P-value below that indicates the sequence is very unlikely to be random. `RunSuite` runs all 7 with sensible defaults and never raises for a too-short input: a test whose minimum-length requirement isn't met gets `PValue=-1` and a `Detail` explaining it was skipped, rather than aborting the whole suite.
+
+**Every formula was verified against NIST's own worked examples**, extracted from the source PDF's text (not transcribed from memory - see `docs/rng-validate-plan.md` for how) and matched exactly, not just approximately. That process caught three real bugs along the way, including one Approximate Entropy degrees-of-freedom error that was off by a full power of two - also documented in `docs/rng-validate-plan.md`.
+
+**The other 8 NIST tests are deliberately not implemented** - Discrete Fourier Transform/Spectral, Non-overlapping and Overlapping Template Matching, Maurer's Universal, Serial, Linear Complexity, Random Excursions, and Random Excursions Variant each need substantially higher-risk machinery (an FFT, a template-matching state machine, Berlekamp-Massey synthesis, or full random-walk cycle enumeration) where a subtle bug is much easier to introduce and much harder to catch without exact reference vectors. `LongestRunOfOnes` similarly only supports NIST's smallest size regime (`128 <= BitCount < 6272`); the two larger regimes NIST defines for bigger inputs aren't implemented. See `docs/rng-validate-plan.md` for the full landscape and why TestU01, Dieharder, and ISO/IEC 18031 weren't used instead.
+
+As with everything else in this library: **passing this suite indicates statistical quality, not cryptographic security** - a well-built non-cryptographic PRNG can pass these same tests. Don't use passing results here as evidence of unpredictability; that's what the CSPRNG/OS-level guarantees documented above are for.
+
 ## Fixed since the initial version
 
 A code review turned up several real bugs, since fixed:

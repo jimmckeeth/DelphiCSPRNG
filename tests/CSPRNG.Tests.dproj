@@ -53,6 +53,11 @@
         <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
+        <!-- Enables Holon.CSRNG.Provider.Base's optional use of Holon.SecureMemory to
+             wipe its intermediate buffers - see HOLON_CSRNG_USE_SECUREMEMORY in
+             src/Holon.CSRNG.Provider.Base.pas. Off by default for third-party
+             consumers of Holon.CSRNG alone; on here so the test suite exercises it. -->
+        <DCC_Define>HOLON_CSRNG_USE_SECUREMEMORY;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSX64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -98,6 +103,9 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Holon.CSRNG.Tests.Providers.pas"/>
+        <DCCReference Include="Holon.SecureMemory.Tests.pas"/>
+        <DCCReference Include="Holon.ValidateRNG.Tests.pas"/>
+        <DCCReference Include="..\src\Holon.ValidateRNG.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Interfaces.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Base.pas"/>
@@ -105,6 +113,8 @@
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Posix.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Linux.pas"/>
         <DCCReference Include="..\src\Holon.CSRNG.Provider.Apple.pas"/>
+        <DCCReference Include="..\src\Holon.SecureMemory.pas"/>
+        <DCCReference Include="..\src\Holon.SecureMemory.Platform.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

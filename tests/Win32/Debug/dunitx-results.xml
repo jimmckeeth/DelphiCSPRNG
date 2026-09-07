@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<test-results name="C:\Users\jim\git\DelphiCSPRNG\tests\Win32\Debug\CSPRNG.Tests.exe" total="34" errors="0" failures="0" ignored="0" inconclusive="0" not-run="0" skipped="0" invalid="0" date="2026-08-31" time="01:30:19">
+<test-results name="C:\Users\jim\git\DelphiCSPRNG\tests\Win32\Debug\Holon.CSRNG.Tests.exe" total="71" errors="0" failures="0" ignored="0" inconclusive="0" not-run="0" skipped="0" invalid="0" date="2026-08-31" time="18:55:03">
   <culture-info current-culture="en" current-uiculture="en" />
-  <test-suite type="Assembly" name="CSPRNG.Tests.exe" executed="true" result="Success" success="True" time="01:30:19" asserts="0">
+  <test-suite type="Assembly" name="Holon.CSRNG.Tests.exe" executed="true" result="Success" success="True" time="18:55:03" asserts="0">
     <results>
-        <test-suite type="Namespace" name="CSPRNG" executed="true" result="Success" success="True" time="0.087" asserts="0" >
+        <test-suite type="Namespace" name="Holon" executed="true" result="Success" success="True" time="0.067" asserts="0" >
           <results>
-              <test-suite type="Fixture" name="TCSPRNGProviderTests" executed="True" result="Success" success="True" time="0.087" >
+              <test-suite type="Fixture" name="TCSPRNGProviderTests" executed="True" result="Success" success="True" time="0.054" >
                 <results>
                   <test-case name="TestGetBytes_Length" executed="True" result="Success" success="True" time="0.001" asserts="0" />
-                  <test-case name="TestGetBytes_Randomness" executed="True" result="Success" success="True" time="0.069" asserts="0" />
+                  <test-case name="TestGetBytes_Randomness" executed="True" result="Success" success="True" time="0.045" asserts="0" />
                   <test-case name="TestPadBytes_EmptyArrayTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestPadBytes_ExactLengthTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestPadBytes_LongArrayTo4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
@@ -25,13 +25,13 @@
                   <test-case name="TestTryReduceUInt64_AcceptsAndReducesValidValues" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestTryReduceUInt64_NoRejectionWhenRangeDividesEvenly" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetBytes_NegativeCount_RaisesECSPRNGError" executed="True" result="Success" success="True" time="0.000" asserts="0" />
-                  <test-case name="TestGetInt64.Int64_DefaultRange" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                  <test-case name="TestGetInt64.Int64_DefaultRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetInt64.Int64_SmallRange" executed="True" result="Success" success="True" time="0.001" asserts="0" />
-                  <test-case name="TestGetInt64.Int64_SingleValue" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="TestGetInt64.Int64_SingleValue" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetInt32.Int32_DefaultRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetInt32.Int32_SmallRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetInt32.Int32_SingleValue" executed="True" result="Success" success="True" time="0.001" asserts="0" />
-                  <test-case name="TestGetUInt64.UInt64_DefaultRange" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                  <test-case name="TestGetUInt64.UInt64_DefaultRange" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetUInt64.UInt64_SmallRange" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                   <test-case name="TestGetUInt64.UInt64_SingleValue" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                   <test-case name="TestGetBase64_CustomLength.Len64" executed="True" result="Success" success="True" time="0.000" asserts="0" />
@@ -40,7 +40,52 @@
                   <test-case name="TestGetBase64_Length" executed="True" result="Success" success="True" time="0.000" asserts="0" />
                   <test-case name="TestGetBase64_Randomness" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                   <test-case name="TestGetBase64_ValidEncoding" executed="True" result="Success" success="True" time="0.000" asserts="0" />
-                  <test-case name="TestGetFloat_Range" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                  <test-case name="TestGetFloat_Range" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                </results>
+              </test-suite>
+              <test-suite type="Fixture" name="TSecureMemoryTests" executed="True" result="Success" success="True" time="0.001" >
+                <results>
+                  <test-case name="TestAllocate_ZeroFilled" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestAllocate_ZeroSize" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestAccess_RoundTrip" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestFromProvider_FillsFromProvider" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestWipe_ZeroesDataWhileStillAlive" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestAssign_DeepCopy_Independent" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestNestedAccess_Balances" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestSequentialAccess_ReopensCorrectly" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestAccessedValueCopy_KeepsOwnerOpenUntilBothExpire" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestAccess_OnUnallocated_Raises" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestCanaryCorruption_RaisesOnFinalize" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestCanaryCorruption_RaisesOnAccess" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestSecureZeroBytes_ZeroesBuffer" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestSecureZeroBytes_NilOrZeroSize_NoOp" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPlatform_AllocProtectLockFree_RoundTrip" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestLockedProperty_DoesNotRaiseEitherWay" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                </results>
+              </test-suite>
+              <test-suite type="Fixture" name="TValidateRNGTests" executed="True" result="Success" success="True" time="0.012" >
+                <results>
+                  <test-case name="TestErfc_KnownConstants" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestPhi_KnownConstants" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestIgamc_KnownConstants" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestFrequency_NistWorkedExample" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestBlockFrequency_NistWorkedExample" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestRuns_NistWorkedExample" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestLongestRunOfOnes_NistWorkedExample" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestApproximateEntropy_NistWorkedExample" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestCumulativeSums_Forward_NistWorkedExample" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestCumulativeSums_Reverse_NistWorkedExample" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestBinaryMatrixRank_NistWorkedExample" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                  <test-case name="TestFrequency_AllZeros_FailsDecisively" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestFrequency_AllOnes_FailsDecisively" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestRuns_Alternating_FailsDecisively" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestFrequency_Alternating_Passes" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestFrequency_TooShort_Raises" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestBinaryMatrixRank_TooShort_Raises" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestLongestRunOfOnes_OutOfSupportedRange_Raises" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestApproximateEntropy_MZero_Raises" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                  <test-case name="TestRunSuite_LiveCSRNG_AllResultsSane" executed="True" result="Success" success="True" time="0.005" asserts="0" />
+                  <test-case name="TestRunSuite_ProviderOverload_Works" executed="True" result="Success" success="True" time="0.005" asserts="0" />
                 </results>
               </test-suite>
           </results>

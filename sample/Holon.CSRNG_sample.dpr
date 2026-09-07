@@ -12,7 +12,10 @@ uses
   Holon.CSRNG.Provider.Base in '..\src\Holon.CSRNG.Provider.Base.pas',
   Holon.CSRNG.Provider.Posix in '..\src\Holon.CSRNG.Provider.Posix.pas',
   Holon.CSRNG.Provider.Linux in '..\src\Holon.CSRNG.Provider.Linux.pas',
-  Holon.CSRNG.Provider.Apple in '..\src\Holon.CSRNG.Provider.Apple.pas';
+  Holon.CSRNG.Provider.Apple in '..\src\Holon.CSRNG.Provider.Apple.pas',
+  Holon.SecureMemory in '..\src\Holon.SecureMemory.pas',
+  Holon.SecureMemory.Platform in '..\src\Holon.SecureMemory.Platform.pas',
+  Holon.ValidateRNG in '..\src\Holon.ValidateRNG.pas';
 
 begin
   try
@@ -53,6 +56,27 @@ begin
     for var i := 0 to limit do Writeln(rnd.GetInt64(High(UInt64) div 4));
     writeln(' - Int64(small) -');
     for var i := 0 to limit do Writeln(rnd.GetInt64($F0));
+
+    writeln(' - Holon.SecureMemory -');
+    var Key := TSecureBytes.FromProvider(rnd, 32);
+    Write('  32-byte secure key: ');
+    var A := Key.Access;
+    for var i := 0 to A.Size - 1 do
+      Write(IntToHex(A.Data[i], 2).ToLower);
+    Writeln;
+    Writeln('  Locked out of swap: ', Key.Locked);
+
+    writeln(' - Holon.ValidateRNG (NIST SP 800-22 subset) -');
+    var TestResults := TRandomnessTests.RunSuite(rnd, 40000); // 40,000 bits = 5,000 bytes
+    for var TR in TestResults do
+    begin
+      if TR.PValue = -1 then
+        Writeln(Format('  %-32s SKIPPED (%s)', [TR.TestName, TR.Detail]))
+      else if TR.Passed then
+        Writeln(Format('  %-32s p=%.6f PASS (%s)', [TR.TestName, TR.PValue, TR.Detail]))
+      else
+        Writeln(Format('  %-32s p=%.6f FAIL (%s)', [TR.TestName, TR.PValue, TR.Detail]));
+    end;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
