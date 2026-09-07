@@ -15,6 +15,8 @@ uses
   DUnitX.TestFramework,
   Holon.CSRNG.Tests.Providers in 'Holon.CSRNG.Tests.Providers.pas',
   Holon.SecureMemory.Tests in 'Holon.SecureMemory.Tests.pas',
+  Holon.ValidateRNG.Tests in 'Holon.ValidateRNG.Tests.pas',
+  Holon.ValidateRNG in '..\src\Holon.ValidateRNG.pas',
   Holon.CSRNG.Interfaces in '..\src\Holon.CSRNG.Interfaces.pas',
   Holon.CSRNG in '..\src\Holon.CSRNG.pas',
   Holon.CSRNG.Provider.Base in '..\src\Holon.CSRNG.Provider.Base.pas',

@@ -122,6 +122,26 @@ A detected canary corruption raises `ESecureMemoryError` (descends from `ECSPRNG
 
 **Not implemented**: an optional keystream-masking layer (XOR the buffer with an HMAC-derived stream while sealed) was designed as an extra defense-in-depth measure against crash-dump scraping, but was judged not worth the added complexity given guard pages + canary + swap-locking are already the load-bearing protection - see "Implementation notes" in `docs/secure-memory-plan.md`. **Also out of scope entirely**: OS-level secret storage (Keychain/Secure Enclave, DPAPI/CNG, the Linux kernel keyring, a TPM) keeps a secret out of the process's address space altogether and is *strictly stronger* than anything an in-process container can offer - prefer it over `TSecureBytes` wherever it's available for your target platform.
 
+## Holon.ValidateRNG
+
+`Holon.ValidateRNG.pas` implements 7 of the 15 statistical tests in [NIST SP 800-22 Rev 1a](https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-22r1a.pdf) ("A Statistical Test Suite for Random and Pseudorandom Number Generators for Cryptographic Applications"): **Frequency (Monobit)**, **Frequency within a Block**, **Runs**, **Longest Run of Ones in a Block**, **Binary Matrix Rank**, **Cumulative Sums (Cusum)**, and **Approximate Entropy**. Like `Holon.SecureMemory`, this is a separate, optional unit with no back-reference from `Holon.CSRNG`.
+
+```Delphi
+uses Holon.CSRNG, Holon.CSRNG.Interfaces, Holon.ValidateRNG;
+
+var Results := TRandomnessTests.RunSuite(Holon.CSRNG.GetCSPRNGProvider, 40000); // 40,000 bits
+for var R in Results do
+  Writeln(R.TestName, ': p=', R.PValue:0:6, ' ', BoolToStr(R.Passed, True));
+```
+
+Each test returns a `TRandomnessTestResult` (`TestName`, `PValue`, `Passed`, and a `Detail` string with the key intermediate statistic). `Passed` uses NIST's standard significance level, α=0.01 - a P-value below that indicates the sequence is very unlikely to be random. `RunSuite` runs all 7 with sensible defaults and never raises for a too-short input: a test whose minimum-length requirement isn't met gets `PValue=-1` and a `Detail` explaining it was skipped, rather than aborting the whole suite.
+
+**Every formula was verified against NIST's own worked examples**, extracted from the source PDF's text (not transcribed from memory - see `docs/rng-validate-plan.md` for how) and matched exactly, not just approximately. That process caught three real bugs along the way, including one Approximate Entropy degrees-of-freedom error that was off by a full power of two - also documented in `docs/rng-validate-plan.md`.
+
+**The other 8 NIST tests are deliberately not implemented** - Discrete Fourier Transform/Spectral, Non-overlapping and Overlapping Template Matching, Maurer's Universal, Serial, Linear Complexity, Random Excursions, and Random Excursions Variant each need substantially higher-risk machinery (an FFT, a template-matching state machine, Berlekamp-Massey synthesis, or full random-walk cycle enumeration) where a subtle bug is much easier to introduce and much harder to catch without exact reference vectors. `LongestRunOfOnes` similarly only supports NIST's smallest size regime (`128 <= BitCount < 6272`); the two larger regimes NIST defines for bigger inputs aren't implemented. See `docs/rng-validate-plan.md` for the full landscape and why TestU01, Dieharder, and ISO/IEC 18031 weren't used instead.
+
+As with everything else in this library: **passing this suite indicates statistical quality, not cryptographic security** - a well-built non-cryptographic PRNG can pass these same tests. Don't use passing results here as evidence of unpredictability; that's what the CSPRNG/OS-level guarantees documented above are for.
+
 ## Fixed since the initial version
 
 A code review turned up several real bugs, since fixed:
