@@ -1,7 +1,7 @@
 # [DelphiCSPRNG](https://github.com/jimmckeeth/DelphiCSPRNG)
 _A cross-platform Cryptographically-Secure Pseudo-Random Number Generator for Delphi_
 
-I wanted an easy to use cross-platform random number generator that was more reliable than the built in Random. It is modular so you can just include the parts you want. Makes use of the platform secure random provider for each platform, with a common provider interface. I've only tested it on Win32, Win64, Android64, and Linux64. 
+Modern operating systems have a combination of True Random Number Generators (TRNG) and Cryptographically-Secure Random Number Generators. While traditional PRNGs have the potential to be faster I wanted a to make secure random numbers easy to use. This library makes use of the platform secure random provider for each platform, with a common provider interface. I've only tested it on Win32, Win64, Android64, and Linux64. It is modular so you can just use the operating systems you want.
 
 There are some basic tests and a sample app. Open to feedback, [issues](https://github.com/jimmckeeth/DelphiCSPRNG/issue) reports, and [pull requests](https://github.com/jimmckeeth/DelphiCSPRNG/fork). Especially if you want to test it on Apple hardware.
 
